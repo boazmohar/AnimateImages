@@ -1,6 +1,8 @@
 from __future__ import print_function
+import copy
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 
 
 class Animation:
@@ -10,12 +12,13 @@ class Animation:
 
     """
 
-    def __init__(self, base_path, name, style=(None,), dt=1.0 / 14):
+    def __init__(self, base_path, name, style=None, dt=1.0 / 14):
         """
         
         :param base_path: location to save animation 
         :param name: nae of animation
         :param style: same as matplotlib.style.set mainly a dict with rcparams key-value pairs.
+        These params will be applied to all subplots
         """
         self.base_path = base_path
         self.name = name
@@ -25,31 +28,51 @@ class Animation:
         self.label_list = []
         self.n_img_plots = 0
         self.n_trace_plots = 0
-        if len(style) > 1 and style[0] is not None:
+        if style is not None:
             plt.style.use(style)
-        self.styles = plt.style.library
+        self.styles = copy.deepcopy(plt.style.library)
         self._add_styles()
 
     def _add_styles(self):
+        """ Add 4 new styles to the original matplotlib library: dark and light version for images and traces
+        
+        """
         styles = dict()
-        styles[u'dark_img'] = ['dark_background',
-                               {'axes.spines.top': False, 'axes.spines.right': False,
-                                'axes.spines.bottom': False, 'axes.spines.left': False,
-                                'axes.facecolor': (1, 1, 1, 0), 'axes.edgecolor': (1, 1, 1, 0),
-                                'xtick.color': (1, 1, 1, 0), 'ytick.color': (1, 1, 1, 0), 'grid.alpha': 0,
-                                'image.interpolation': 'None'}]
-        styles[u'light_img'] = ['default',
-                                {'axes.spines.top': False, 'axes.spines.right': False,
-                                 'axes.spines.bottom': False, 'axes.spines.left': False,
-                                 'axes.facecolor': (1, 1, 1, 0), 'axes.edgecolor': (1, 1, 1, 0),
-                                 'xtick.color': (1, 1, 1, 0), 'ytick.color': (1, 1, 1, 0), 'grid.alpha': 0,
-                                 'image.interpolation': 'None'}]
-        styles[u'dark_trace'] = ['dark_background',
-                                 {'axes.spines.top': False, 'axes.spines.right': False,
-                                  'legend.frameon': False, 'legend.fontsize': 'large'}]
-        styles[u'light_trace'] = ['default',
-                                  {'axes.spines.top': False, 'axes.spines.right': False,
-                                   'legend.frameon': False, 'legend.fontsize': 'large'}]
+        default = mpl.rcParamsDefault
+        dark_background = plt.style.library['dark_background']
+
+        dark_img = copy.deepcopy(dark_background)
+        dark_img.update({u'axes.spines.top': False, 'axes.spines.right': False,
+                         u'axes.spines.bottom': False, 'axes.spines.left': False,
+                         u'axes.facecolor': (1, 1, 1, 0), 'axes.edgecolor': (1, 1, 1, 0),
+                         u'xtick.color': (1, 1, 1, 0), 'ytick.color': (1, 1, 1, 0), 'grid.alpha': 0,
+                         u'image.interpolation': 'None'})
+        styles[u'dark_img'] = dark_img
+
+        light_img = copy.deepcopy(default)
+        light_img.update({u'axes.spines.top': False, u'axes.spines.right': False,
+                          u'axes.spines.bottom': False, u'axes.spines.left': False,
+                          u'axes.facecolor': (1, 1, 1, 0), u'axes.edgecolor': (1, 1, 1, 0),
+                          u'xtick.color': (1, 1, 1, 0), u'ytick.color': (1, 1, 1, 0), u'grid.alpha': 0,
+                          u'image.interpolation': 'None'})
+        styles[u'light_img'] = light_img
+
+        dark_trace = copy.deepcopy(dark_background)
+        dark_trace.update({u'axes.spines.top': False, u'axes.spines.right': False,
+                           u'axes.spines.bottom': False, u'axes.spines.left': False,
+                           u'axes.facecolor': (1, 1, 1, 0), u'axes.edgecolor': (1, 1, 1, 0),
+                           u'xtick.color': (1, 1, 1, 0), u'ytick.color': (1, 1, 1, 0), u'grid.alpha': 0,
+                           u'image.interpolation': 'None'})
+        styles[u'dark_trace'] = dark_trace
+
+        light_trace = copy.deepcopy(default)
+        light_trace.update({u'axes.spines.top': False, u'axes.spines.right': False,
+                            u'axes.spines.bottom': False, u'axes.spines.left': False,
+                            u'axes.facecolor': (1, 1, 1, 0), u'axes.edgecolor': (1, 1, 1, 0),
+                            u'xtick.color': (1, 1, 1, 0), u'ytick.color': (1, 1, 1, 0), u'grid.alpha': 0,
+                            u'image.interpolation': 'None'})
+        styles[u'light_trace'] = light_trace
+
         self.styles.update(styles)
 
     def add_label(self, axis=0, location=(0.01, 0.9), s_format='%', size=14):
@@ -63,14 +86,14 @@ class Animation:
         
         :param data: 3d array (n, x, y)
         :param c_title: title to put on the color bar
-        :param ylim_type: how to set the y limits. 'p_top' will clip the top ylim_value values in %.
-        'p_bottom' same for bottom % pixels. 'p_both' will clip both ends. 'set' will expect a tuple [min max]
-        in ylim_value. 'same' will expect a index in ylim_value for the axis number to take from.
+        :param ylim_type: how to set the y limits. 'p_top' will clip the top ylim_value values in %. \
+            'p_bottom' same for bottom % pixels. 'p_both' will clip both ends. 'set' will expect a tuple [min max] \
+            in ylim_value. 'same' will expect a index in ylim_value for the axis number to take from.
         :param ylim_value: see ylim_type
         :param style: see matplotlib.style.set_. ability to compose styles. example: base style is dark for images
-        .. _matplotlib.style.set: http://matplotlib.org/api/style_api.html?highlight=style#matplotlib.style.use
-         but with a different color map: 
-        >>> style=['dark_img', {'image.cmap': 'magma'}]
+            .. _matplotlib.style.set: http://matplotlib.org/api/style_api.html?highlight=style#matplotlib.style.use
+            but with a different color map: 
+            >>> style=['dark_img', {'image.cmap': 'magma'}]
         :return: Adds an image animation
         """
         img = dict()
