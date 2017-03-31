@@ -12,7 +12,7 @@ class Animation:
 
     """
 
-    def __init__(self, base_path, name, style, dt=1.0 / 14):
+    def __init__(self, base_path, name, style, dt=1.0/14):
         """
 
         :param base_path: location to save animation 
@@ -26,8 +26,7 @@ class Animation:
         self.img_list = []
         self.trace_list = []
         self.label_list = []
-        self.n_img_plots = 0
-        self.n_trace_plots = 0
+        self.names=set()
         if style is not None:
             plt.style.use(style)
         self.styles = copy.deepcopy(plt.style.library)  # type: dict
@@ -86,9 +85,10 @@ class Animation:
         :param kwargs: to be sent to the plt.text function
         :return: 
         """
-        self.label_list.append({'values': values, 'axis': axis, 'location': location, 'format': s_format, 'size': size})
+        self.label_list.append({'values': values, 'axis': axis, 'location': location, 'format': s_format, 'size': size,
+                                'kwargs': kwargs})
 
-    def add_time_label(self, values=None, axis='img_0', location=(0.01, 0.08), s_format='%.2fs', size=14):
+    def add_time_label(self, values=None, axis='img_0', location=(0.01, 0.08), s_format='%.2fs', size=14, **kwargs):
         if values is None:
             if len(self.img_list) == 0:
                 if len(self.trace_list) == 0:
@@ -97,49 +97,70 @@ class Animation:
                     values = np.arange(self.trace_list[0]['data'].shape[0]) * self.dt
             else:
                 values = np.arange(self.img_list[0]['data'].shape[0]) * self.dt
-        self.add_label(values, axis, location, s_format, size)
+        self.add_label(values, axis, location, s_format, size, kwargs)
 
-    def add_image_plot(self, data, style='dark_img', c_title=None, ylim_type='p_top', ylim_value=0.1):
+    def _get_ylim(self, ylim_type, ylim_value, data):
         """
-        
-        :type ylim_value: Union(float, tuple)
-        :param data: 3d array (n, x, y)
-        :param c_title: title to put on the color bar
-        :param ylim_type: how to set the y limits. 'p_top' will clip the top ylim_value values in %. \
-            'p_bottom' same for bottom % pixels. 'p_both' will clip both ends. 'set' will expect a tuple [min max] \
-            in ylim_value. 'same' will expect a index in ylim_value for the axis number to take from.
-        :param ylim_value: see ylim_type
-        :param style: see matplotlib.style.set_. ability to compose styles. example: base style is dark for images
-            .. _matplotlib.style.set: http://matplotlib.org/api/style_api.html?highlight=style#matplotlib.style.use
-            but with a different color map: 
-            >>> style=['dark_img', {'image.cmap': 'magma'}]
-        :return: Adds an image animation
-        """
-        img = dict()
-        img['data'] = data
-        img['style'] = style
-        img['c_title'] = c_title
 
-        # get ylim
+        :param ylim_type: 
+        :param ylim_value: 
+        :param data: 
+        :return: 
+        """
         if ylim_type == 'set':
             assert len(ylim_value) == 2
-            img['ymin'] = ylim_value[0]
-            img['ymax'] = ylim_value[1]
+            return ylim_value[0], ylim_value[1]
         elif ylim_type == 'same':
             assert len(self.img_list) < ylim_value
-            img['ymin'] = self.img_list[ylim_value]['ymin']
-            img['ymax'] = self.img_list[ylim_value]['ymax']
+            return self.img_list[ylim_value]['ymin'], self.img_list[ylim_value]['ymax']
         elif ylim_type == 'p_top':
-            # noinspection PyTypeChecker
-            img['ymax'] = np.nanpercentile(data, 100.0 - ylim_value)
-            img['ymin'] = np.nanmin(data)
+            return np.nanpercentile(data, 100.0 - ylim_value), np.nanmin(data)
         elif ylim_type == 'p_bottom':
-            img['ymax'] = np.nanmax(data)
-            img['ymin'] = np.nanpercentile(data, ylim_value)
+            return np.nanmax(data), np.nanpercentile(data, ylim_value)
         elif ylim_type == 'p_both':
-            # noinspection PyTypeChecker
-            img['ymax'] = np.nanpercentile(data, 100.0 - ylim_value)
-            img['ymin'] = np.nanpercentile(data, ylim_value)
+            return np.nanpercentile(data, 100.0 - ylim_value), np.nanpercentile(data, ylim_value)
         else:
-            raise RuntimeError("Expected 'p_top', 'p_bottom', 'p_both', 'set' or 'same' got: %s" % ylim_type)
+            raise RuntimeError("Expected 'p_top', 'p_top', 'p_top', 'set' or 'same' got: %s" % ylim_type)
+
+    def add_image(self, data, name, style='dark_img', c_title=None, ylim_type='p_top', ylim_value=0.1):
+        """
+
+        :param data: 3d array (n, x, y)
+        :param name: axis name to be referenced by other objects such as labels
+        :param c_title: title to put on the color bar
+        :param ylim_type: how to set the y limits. 'p_top' will clip the top ylim_value values in %.
+        'p_bottom' same for bottom % pixels. 'p_both' will clip both ends. 'set' will expect a tuple [min max]
+        in ylim_value. 'same' will expect a index in ylim_value for the axis number to take from.
+        :param ylim_value: see ylim_type
+        :param style: see matplotlib.style.set_. ability to compose styles. example: base style is dark for images
+        .. _matplotlib.style.set: http://matplotlib.org/api/style_api.html?highlight=style#matplotlib.style.use
+         but with a different color map: 
+        >>> style=['dark_img', {'image.cmap': 'magma'}]
+        :return: Adds an image animation
+        """
+        if name in self.names:
+            raise RuntimeError('Name %s is already in names: %s, please pick something else' % (name, self.names))
+        img = dict()
+        img['data'] = data
+        img['name'] = name
+        img['style'] = style
+        img['c_title'] = c_title
+        img['ymax'], img['ymin'] = self._get_ylim(ylim_type, ylim_value, data)
         self.img_list.append(img)
+
+    def add_trace(self, data, name, c_title=None, ylim_type='p_top', ylim_value=0.1):
+        if name in self.names:
+            raise RuntimeError('Name %s is already in names: %s, please pick something else' % (name, self.names))
+        trace = dict()
+        trace['data'] = data
+        trace['name'] = name
+        trace['style'] = style
+        trace['c_title'] = c_title
+        trace['ymax'], trace['ymin'] = self._get_ylim(ylim_type, ylim_value, data)
+        self.trace_list.append(trace)
+
+    def add_trace_axis(self, style='dark_img'):
+        pass
+
+    def add_traces(self):
+        pass
