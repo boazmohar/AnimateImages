@@ -12,11 +12,11 @@ class Animation:
 
     """
 
-    def __init__(self, base_path, name, style, dt=1.0/14):
+    def __init__(self, base_path, name, style=None, dt=1.0/14):
         """
 
         :param base_path: location to save animation 
-        :param name: nae of animation
+        :param name: name of animation
         :param style: same as matplotlib.style.set mainly a dict with rcparams key-value pairs.
         These params will be applied to all subplots
         """
@@ -30,6 +30,7 @@ class Animation:
         if style is not None:
             plt.style.use(style)
         self.styles = copy.deepcopy(plt.style.library)  # type: dict
+        self.trace_axis_list=[]
         self._add_styles()
 
     def _add_styles(self):
@@ -148,13 +149,13 @@ class Animation:
         img['ymax'], img['ymin'] = self._get_ylim(ylim_type, ylim_value, data)
         self.img_list.append(img)
 
-    def add_trace(self, data, name, c_title=None, ylim_type='p_top', ylim_value=0.1):
+    def add_trace(self, data, name, axis=0, c_title=None, ylim_type='p_top', ylim_value=0.1):
         if name in self.names:
             raise RuntimeError('Name %s is already in names: %s, please pick something else' % (name, self.names))
         trace = dict()
         trace['data'] = data
         trace['name'] = name
-        trace['style'] = style
+        trace['axis'] = axis
         trace['c_title'] = c_title
         trace['ymax'], trace['ymin'] = self._get_ylim(ylim_type, ylim_value, data)
         self.trace_list.append(trace)
@@ -164,3 +165,7 @@ class Animation:
 
     def add_traces(self):
         pass
+
+
+a = Animation('a','b', None)
+a.add_trace([1,2,3,4,5,6],'a')
