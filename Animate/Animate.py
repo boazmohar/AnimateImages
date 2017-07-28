@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import print_function, division
 import copy
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,9 +10,18 @@ class Animation:
         Adds all image animation to a top row of subplots 
         and adds all the trace animation plots to rows 2, 3, ...
 
+        Dynamic componants (will update every cycle):
+        images: a list of images to display on the top row
+        labels: a list of labels that change ever frame (time / behavior)
+
+        Static componants:
+        axes: a list of axis to display on 2nd row
+        traces: a list of traces to display on one of the axis from the above list
+        annotations: a list of annotations
+
     """
 
-    def __init__(self, base_path, name, style=None, dt=1.0/14):
+    def __init__(self, base_path, name, style=None, dt=1.0 / 14):
         """
 
         :param base_path: location to save animation 
@@ -23,14 +32,14 @@ class Animation:
         self.base_path = base_path
         self.name = name
         self.dt = dt
-        self.img_list = []
-        self.trace_list = []
-        self.label_list = []
-        self.names=set()
+        self.images = []
+        self.traces = []
+        self.labels = []
+        self.annotations = []
+        self.axes = []
         if style is not None:
             plt.style.use(style)
         self.styles = copy.deepcopy(plt.style.library)  # type: dict
-        self.trace_axis_list=[]
         self._add_styles()
 
     def _add_styles(self):
@@ -86,19 +95,55 @@ class Animation:
         :param kwargs: to be sent to the plt.text function
         :return: 
         """
-        self.label_list.append({'values': values, 'axis': axis, 'location': location, 'format': s_format, 'size': size,
-                                'kwargs': kwargs})
+        local_vars = locals()
+        del local_vars['self']
+        self.labels.append(local_vars)
 
-    def add_time_label(self, values=None, axis='img_0', location=(0.01, 0.08), s_format='%.2fs', size=14, **kwargs):
+    def add_time_label(self, values=None, axis=0, location=(0.01, 0.08), s_format='%.2fs', size=14, **kwargs):
         if values is None:
-            if len(self.img_list) == 0:
-                if len(self.trace_list) == 0:
+            if len(self.images) == 0:
+                if len(self.traces) == 0:
                     raise RuntimeError('Can not add time labels when no values are given and no data was added')
                 else:
-                    values = np.arange(self.trace_list[0]['data'].shape[0]) * self.dt
+                    values = np.arange(self.traces[0]['data'].shape[0]) * self.dt
             else:
-                values = np.arange(self.img_list[0]['data'].shape[0]) * self.dt
+                values = np.arange(self.images[0]['data'].shape[0]) * self.dt
         self.add_label(values, axis, location, s_format, size, kwargs)
+
+    def add_line_annotation(self, axis, x, y, **kwargs):
+        """
+
+        :param axis: axis number of the images
+        :param x: x locations
+        :param y: y locations
+        :param kwargs: kwargs to be passed to Line2D
+        :return:
+        """
+        self.annotations.append({'type': 'line', 'axis': axis, 'x': x, 'y': y, 'kwargs': kwargs})
+
+    def add_text_annotation(self, axis, x, y, text, **kwargs):
+        """
+
+        :param axis: axis number of the images
+        :param x: x location
+        :param y: y location
+        :param text: text to write
+        :param kwargs: kwargs to be passed to plt.text
+        :return:
+        """
+        self.annotations.append({'type': 'text', 'axis': axis, 'x': x, 'y': y, 'text': text, 'kwargs': kwargs})
+
+    def add_scale_bar(self, axis=0, pixel_width=40, um_width='20'):
+        """
+
+        :param axis:
+        :param pixel_width:
+        :param um_width:
+        :return:
+        """
+        self.add_line_annotation(axis=axis, x=(0, pixel_width), y=(2, 2), color='white', lw=3)
+        mid = int(pixel_width / 2)
+        self.add_text_annotation(axis=axis, x=mid, y=mid, text=um_width + 'um', ha='center', fontsize=14, color='white')
 
     def _get_ylim(self, ylim_type, ylim_value, data):
         """
@@ -121,7 +166,7 @@ class Animation:
         elif ylim_type == 'p_both':
             return np.nanpercentile(data, 100.0 - ylim_value), np.nanpercentile(data, ylim_value)
         else:
-            raise RuntimeError("Expected 'p_top', 'p_top', 'p_top', 'set' or 'same' got: %s" % ylim_type)
+            raise RuntimeError("Expected 'p_top', 'p_bottom', 'p_both', 'set' or 'same' got: %s" % ylim_type)
 
     def add_image(self, data, name, style='dark_img', c_title=None, ylim_type='p_top', ylim_value=0.1):
         """
@@ -139,33 +184,41 @@ class Animation:
         >>> style=['dark_img', {'image.cmap': 'magma'}]
         :return: Adds an image animation
         """
-        if name in self.names:
-            raise RuntimeError('Name %s is already in names: %s, please pick something else' % (name, self.names))
         img = dict()
         img['data'] = data
-        img['name'] = name
         img['style'] = style
         img['c_title'] = c_title
         img['ymax'], img['ymin'] = self._get_ylim(ylim_type, ylim_value, data)
-        self.img_list.append(img)
+        self.images.append(img)
 
-    def add_trace(self, data, name, axis=0, c_title=None, ylim_type='p_top', ylim_value=0.1):
-        if name in self.names:
-            raise RuntimeError('Name %s is already in names: %s, please pick something else' % (name, self.names))
+    def add_trace(self, data, axis=0, name=None, ylim_type='p_top', ylim_value=0.1):
+        if len(self.axes) <= axis:
+            raise RuntimeError('Please create axis %d before adding traces' % axis)
         trace = dict()
         trace['data'] = data
         trace['name'] = name
         trace['axis'] = axis
-        trace['c_title'] = c_title
         trace['ymax'], trace['ymin'] = self._get_ylim(ylim_type, ylim_value, data)
-        self.trace_list.append(trace)
+        self.traces.append(trace)
 
-    def add_trace_axis(self, style='dark_img'):
-        pass
+    def add_axis(self, x_label, y_label, style='dark_trace', running_line=True):
+        """
+
+        :param x_label:
+        :param y_label:
+        :param style:
+        :param running_line:
+        :return:
+        """
+        local_vars = locals()
+        del local_vars['self']
+        print(local_vars.keys())
+        self.axes.append(local_vars)
 
     def add_traces(self):
         pass
 
 
-a = Animation('a','b', None)
-a.add_trace([1,2,3,4,5,6],'a')
+a = Animation('a', 'b', None)
+a.add_axis('time','dff')
+a.add_trace([1,2,3,4,5,6,7,], 0, 'try1')
