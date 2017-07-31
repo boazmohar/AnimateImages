@@ -258,4 +258,4 @@ if __name__ == '__main__':
     prepare.add_trace(np.random.rand(10), 1, 'try1')
     prepare.add_trace(np.random.rand(10) + 2, 1, 'try2')
     animation = Animation(prepare)
-    animation.save('test_sub.mp4')
+    animation.save('test_sub.mp4', codec='h264')
