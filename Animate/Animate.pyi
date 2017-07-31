@@ -1,22 +1,14 @@
-from numpy import ndarray
-from typing import Union
+from Animate.Prepare import Prepare
 
 class Animation:
-    def __init__(self, base_path: str, name: str, style: Union(tuple, str), dt: float):
-        self.dt = 0
-        self.traces = []
-        self.images = []
-        self.labels = []
-        self.styles = []
-
-    def add_label(self, values: Union(ndarray, list), axis: int, location: tuple, s_format: str, size: int, kwargs):
+    def __init__(self, prepare: Prepare):
         pass
 
-    def add_time_label(self, values: Union(ndarray, list), axis: int, location: tuple, s_format: str, size: int):
+    def _draw_frame(self, frame: int):
         pass
 
-    def add_image_plot(self, data: ndarray, ylim_type: str, ylim_value: Union(float, tuple, list)):
+    def new_frame_seq(self):
         pass
 
-    def _add_styles(self):
+    def _init_draw(self):
         pass
