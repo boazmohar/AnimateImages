@@ -23,17 +23,13 @@ class Prepare:
 
     """
 
-    def __init__(self, base_path, name, style=None, dt=1.0 / 14, fig_kwargs={'figsize': (10, 10)},
-                 fig_color='black', height_ratios=(4, 1, 1)):
+    def __init__(self, style=None, dt=1.0 / 14, fig_kwargs={'figsize': (10, 10)},fig_color='black',
+                 height_ratios=(4, 1, 1)):
         """
 
-        :param base_path: location to save animation 
-        :param name: name of animation
         :param style: same as matplotlib.style.set mainly a dict with rcparams key-value pairs.
         These params will be applied to all subplots
         """
-        self.base_path = base_path
-        self.name = name
         self.dt = dt
         self.fig_color = fig_color
         self.height_ratios = height_ratios
@@ -236,26 +232,3 @@ class Prepare:
         del local_vars['self']
         print(local_vars.keys())
         self.axes.append(local_vars)
-
-if __name__ == '__main__':
-    from Animate import Animation
-
-    prepare = Prepare('a', 'b', None)
-    data = np.random.rand(10, 40, 20)
-    prepare.add_image(data, c_title='try1')
-    data = np.random.rand(10, 40, 20)
-    prepare.add_image(data, c_title='try2')
-    prepare.add_scale_bar(pixel_width=4)
-    prepare.add_scale_bar(pixel_width=8, axis=1)
-    prepare.add_time_label()
-    prepare.add_annotation(0, (3, 3), (7, 9), '123', size=13, ha='right', va='center',
-                           arrowprops=dict(arrowstyle="->", color='b'), color='g')
-    prepare.add_circle_annotation(1, 3, 7, 3, color='b', lw=0.5, fill=False)
-    prepare.add_axis('Time (s)', '$\Delta$F/F')
-    prepare.add_trace(np.random.rand(10), 0, 'try1')
-    prepare.add_trace(np.random.rand(10) + 2, 0, 'try2')
-    prepare.add_axis('Time (s)', '$\Delta$F/F')
-    prepare.add_trace(np.random.rand(10), 1, 'try1')
-    prepare.add_trace(np.random.rand(10) + 2, 1, 'try2')
-    animation = Animation(prepare)
-    animation.save('test_sub.mp4', codec='h264')
