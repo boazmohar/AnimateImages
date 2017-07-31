@@ -1,11 +1,11 @@
 from __future__ import print_function, division
+
 import copy
-import numpy as np
-import PyQt5
-import matplotlib.pyplot as plt
+
 import matplotlib as mpl
-import matplotlib
-matplotlib.use('GTKAgg')
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 class Prepare:
     """ Class to prepare animation of movies with traces
@@ -59,8 +59,8 @@ class Prepare:
         dark_img = copy.deepcopy(dark_background)
         dark_img.update({u'axes.spines.top': False, u'axes.spines.right': False,
                          u'axes.spines.bottom': False, u'axes.spines.left': False,
-                         u'axes.facecolor': (1, 1, 1, 1), u'axes.edgecolor': (1, 1, 1, 1),
-                         u'xtick.color': (1, 1, 1, 1), u'ytick.color': (1, 1, 1, 1), u'grid.alpha': 0,
+                         u'axes.facecolor': (1, 1, 1, 0), u'axes.edgecolor': (1, 1, 1, 0),
+                         u'xtick.color': (1, 1, 1, 0), u'ytick.color': (1, 1, 1, 0), u'grid.alpha': 0,
                          u'image.interpolation': 'None', u'image.cmap': 'viridis'})
         styles[u'dark_img'] = dark_img
 
@@ -89,10 +89,11 @@ class Prepare:
 
     def add_label(self, x, y, values, axis=0, s_format='%s', size=14, **kwargs):
         """
-        
+
+        :param x: location in x
+        :param y: location in y
         :param values: list of values
         :param axis: axis number to add the label to
-        :param location: where to add the label in axis coordinates
         :param s_format: string format to use on the values
         :param size: font size
         :param kwargs: to be sent to the plt.text function
@@ -113,8 +114,8 @@ class Prepare:
                 values = np.arange(self.images[0]['data'].shape[0]) * self.dt
         self.add_label(x, y, values, axis,  s_format, size, **kwargs)
 
-    def add_behavior_label(self, values, axis=0, location=(0.9, 0.08), s_format='%s', size=14, **kwargs):
-        self.add_label(values=values, axis=axis, location=location, s_format=s_format, size=size, kwargs=kwargs)
+    def add_behavior_label(self, x=0.9, y=0.08, values=None, axis=0, s_format='%s', size=14, **kwargs):
+        self.add_label(x=x, y=y, values=values, axis=axis, s_format=s_format, size=size, kwargs=kwargs)
 
     def add_annotation(self, axis, xy, xy_text, text, **kwargs):
         self.annotations.append({'type': 'annotation', 'axis': axis, 'text': text, 'xy': xy, 'xy_text': xy_text,
@@ -174,8 +175,8 @@ class Prepare:
             return ylim_value[0], ylim_value[1]
         elif ylim_type == 'same':
             # todo: set type of same image or axis
-            assert len(self.img_list) < ylim_value
-            return self.img_list[ylim_value]['ymin'], self.img_list[ylim_value]['ymax']
+            assert len(self.images) < ylim_value
+            return self.images[ylim_value]['ymin'], self.images[ylim_value]['ymax']
         elif ylim_type == 'p_top':
             return np.nanpercentile(data, 100.0 - ylim_value), np.nanmin(data)
         elif ylim_type == 'p_bottom':
@@ -228,16 +229,13 @@ class Prepare:
         :param style:
         :param running_line: if not None will display a line with the properties provided example:
          running_line = {'color': 'white', 'lw': 3}
+         :param bottom_left_ticks: if True will only show the bottom left ticks of the axis
         :return:
         """
         local_vars = locals()
         del local_vars['self']
         print(local_vars.keys())
         self.axes.append(local_vars)
-
-    def add_traces(self):
-        pass
-
 
 if __name__ == '__main__':
     from Animate import Animation
@@ -251,8 +249,7 @@ if __name__ == '__main__':
     prepare.add_scale_bar(pixel_width=8, axis=1)
     prepare.add_time_label()
     prepare.add_annotation(0, (3, 3), (7, 9), '123', size=13, ha='right', va='center',
-                           arrowprops=dict(arrowstyle="->", color='b'),
-                           color='g')
+                           arrowprops=dict(arrowstyle="->", color='b'), color='g')
     prepare.add_circle_annotation(1, 3, 7, 3, color='b', lw=0.5, fill=False)
     prepare.add_axis('Time (s)', '$\Delta$F/F')
     prepare.add_trace(np.random.rand(10), 0, 'try1')

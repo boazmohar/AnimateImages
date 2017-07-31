@@ -1,13 +1,10 @@
 from __future__ import print_function, division
 
-import PyQt5
-import matplotlib
-matplotlib.use('GTKAgg')
-from matplotlib.animation import TimedAnimation
-from matplotlib.lines import Line2D
-from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.animation import TimedAnimation
+from matplotlib.gridspec import GridSpec
+from matplotlib.lines import Line2D
 
 
 class Animation(TimedAnimation):
@@ -137,12 +134,19 @@ class Animation(TimedAnimation):
 
     def _draw_frame(self, frame):
         drawn_artist = []
+        # images
         for im, image in zip(self.images, self.prepare.images):
             im.set_array(image['data'][frame, :, :])
             drawn_artist.append(im)
+        # labels
         for label, data in zip(self.labels, self.prepare.labels):
-            label.set_text(data['values'][frame])
+            label.set_text(data['s_format'] % data['values'][frame])
             drawn_artist.append(label)
+        # running lines
+        for line in self.running_lines:
+            y_limits = line.axes.get_ylim()
+            line.set_data([self.x_data[frame], self.x_data[frame]], [y_limits[0], y_limits[1]])
+            drawn_artist.append(line)
         self._drawn_artists = drawn_artist
 
     def new_frame_seq(self):
