@@ -21,7 +21,7 @@ setup(
     author_email='boazmohar@gmail.com',
     license='MIT',
     url='https://github.com/boazmohar/animateImages',
-    download_url='https://github.com/boazmohar/animateImages/archive/0.1.6.tar.gz',
+    download_url='https://github.com/boazmohar/animateImages/archive/v0.1.6.tar.gz',
     keywords=['matplotlib', 'animation', ],
     classifiers=['Development Status :: 3 - Alpha',
                  'License :: OSI Approved :: MIT License',
