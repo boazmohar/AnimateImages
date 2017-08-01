@@ -1,8 +1,11 @@
+
+==============
 Animate Images
 ==============
 
 Helper functions to make animations of images with corresponding traces and labels using matplotlib
 
+------------
 Example use:
 ------------
 .. code-block:: python
