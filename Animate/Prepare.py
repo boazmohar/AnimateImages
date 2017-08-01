@@ -230,5 +230,4 @@ class Prepare:
         """
         local_vars = locals()
         del local_vars['self']
-        print(local_vars.keys())
         self.axes.append(local_vars)
