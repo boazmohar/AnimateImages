@@ -65,7 +65,8 @@ class Animation(TimedAnimation):
                 line = Line2D(annotation['x'], annotation['y'], **annotation['kwargs'])
                 ax.add_line(line)
             elif annotation['type'] == 'circle':
-                c = plt.Circle((annotation['x'], annotation['y']), annotation['radius'], axes=ax)
+                c = plt.Circle((annotation['x'], annotation['y']), annotation['radius'], axes=ax,
+                            **annotation['kwargs'])
                 ax.add_patch(c)
             elif annotation['type'] == 'annotation':
                 ax.annotate(annotation['text'], xy=annotation['xy'], xytext=annotation['xy_text'],
