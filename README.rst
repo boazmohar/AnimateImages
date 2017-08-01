@@ -1,6 +1,5 @@
-##################
 Animate Images
-##################
+==============
 
 Helper functions to make animations of images with corresponding traces and labels using matplotlib
 
@@ -28,3 +27,4 @@ Example use:
     prepare.add_trace(np.random.rand(10) + 2, 1, 'try2')
     animation = Animation(prepare)
     animation.save('test_sub.mp4', codec='h264')
+
