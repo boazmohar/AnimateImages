@@ -12,52 +12,51 @@ class Animation(TimedAnimation):
 
     """
 
-    def __init__(self, prepare):
+    def __init__(self, movie):
         """
 
-        :param prepare:
+        :param movie:
         """
         self.x_data = None
-        self.prepare = prepare
-        self.n_images = len(prepare.images)
+        self.movie = movie
+        self.n_images = len(movie.images)
         if self.n_images == 0:
             raise RuntimeError('At least one image is needed')
-        self.n_axes = len(prepare.axes)
-        self.make_x_data()
+        self.n_axes = len(movie.axes)
+        self._make_x_data()
         # figure
-        if prepare.fig_kwargs is not None:
-            self.fig = plt.figure(**prepare.fig_kwargs)
+        if movie.fig_kwargs is not None:
+            self.fig = plt.figure(**movie.fig_kwargs)
         else:
             self.fig = plt.figure()
         rect = self.fig.patch
-        rect.set_facecolor(self.prepare.fig_color)
+        rect.set_facecolor(self.movie.fig_color)
         # images
         self.img_axes = []
         self.images = []
-        self.init_images()
+        self._init_images()
         # traces
         if self.n_axes > 0:
             self.trace_axes = []
             self.traces = []
             self.running_lines = []
-            self.init_traces()
+            self._init_traces()
         # annotations
-        self.init_annotations()
+        self._init_annotations()
         # labels
         self.labels = []
-        self.init_labels()
+        self._init_labels()
         TimedAnimation.__init__(self, self.fig, interval=70, blit=True)
-        print('Done')
 
-    def init_labels(self):
-        for label in self.prepare.labels:
+    def _init_labels(self):
+        for label in self.movie.labels:
             ax = self.img_axes[label['axis']]
             l = ax.text(label['x'], label['y'], label['s_format'] % label['values'][0], size=label['size'],
                         transform=ax.transAxes, **label['kwargs'])
             self.labels.append(l)
 
-    def init_annotations(self):
-        for annotation in self.prepare.annotations:
+    def _init_annotations(self):
+        for annotation in self.movie.annotations:
             ax = self.img_axes[annotation['axis']]
             if annotation['type'] == 'text':
                 ax.text(annotation['x'], annotation['y'], annotation['text'], **annotation['kwargs'])
@@ -74,12 +73,12 @@ class Animation(TimedAnimation):
             else:
                 raise RuntimeError('Annotation type is wrong: %s' % annotation['type'])
 
-    def init_traces(self):
-        gs = GridSpec(1 + self.n_axes, self.n_images, height_ratios=self.prepare.height_ratios)
-        trace_axis = np.array(map(lambda x: x['axis'], self.prepare.traces))
+    def _init_traces(self):
+        gs = GridSpec(1 + self.n_axes, self.n_images, height_ratios=self.movie.height_ratios)
+        trace_axis = np.array(map(lambda x: x['axis'], self.movie.traces))
 
         # for each axis
-        for i, axis in enumerate(self.prepare.axes):
+        for i, axis in enumerate(self.movie.axes):
             # set correct style
             with plt.style.context(axis['style'], after_reset=True):
 
@@ -103,7 +102,7 @@ class Animation(TimedAnimation):
                 # find the traces that belong to this axis
                 trace_index = np.where(trace_axis == i)[0]
                 for j, index in enumerate(trace_index):
-                    trace = self.prepare.traces[index]
+                    trace = self.movie.traces[index]
                     if 'color' in trace['kwargs']:
                         line = Line2D(self.x_data, trace['data'], **trace['kwargs'])
                     else:
@@ -119,9 +118,9 @@ class Animation(TimedAnimation):
                         y_min, y_max = ax.get_ylim()
                         ax.set_ylim(min([trace['ymin'], y_min]), max([trace['ymax'], y_max]))
 
-    def init_images(self):
-        gs = GridSpec(1 + self.n_axes, self.n_images, height_ratios=self.prepare.height_ratios)
-        for i, image in enumerate(self.prepare.images):
+    def _init_images(self):
+        gs = GridSpec(1 + self.n_axes, self.n_images, height_ratios=self.movie.height_ratios)
+        for i, image in enumerate(self.movie.images):
             with plt.style.context(image['style'], after_reset=True):
                 ax = self.fig.add_subplot(gs[0, i])
                 self.img_axes.append(ax)
@@ -132,19 +131,19 @@ class Animation(TimedAnimation):
                     with plt.style.context(image['c_style'], after_reset=True):
                         plt.colorbar(im, ax=ax, label=image['c_title'])
 
-    def make_x_data(self):
-        img = self.prepare.images[0]['data']
+    def _make_x_data(self):
+        img = self.movie.images[0]['data']
         length = img.shape[0]
-        self.x_data = np.arange(length) * self.prepare.dt
+        self.x_data = np.arange(length) * self.movie.dt
 
     def _draw_frame(self, frame):
         drawn_artist = []
         # images
-        for im, image in zip(self.images, self.prepare.images):
+        for im, image in zip(self.images, self.movie.images):
             im.set_array(image['data'][frame, :, :])
             drawn_artist.append(im)
         # labels
-        for label, data in zip(self.labels, self.prepare.labels):
+        for label, data in zip(self.labels, self.movie.labels):
             label.set_text(data['s_format'] % data['values'][frame])
             drawn_artist.append(label)
         # running lines
@@ -155,8 +154,7 @@ class Animation(TimedAnimation):
         self._drawn_artists = drawn_artist
 
     def new_frame_seq(self):
-        return iter(range(self.prepare.images[0]['data'].shape[0]))
-        # return iter(range(20))
+        return iter(range(self.movie.images[0]['data'].shape[0]))
 
     def _init_draw(self):
         pass

@@ -8,16 +8,16 @@ from matplotlib.lines import Line2D
 from matplotlib.text import Text
 from numpy import ndarray
 
-from Animate import Prepare
+from Animate import Movie
 
 
 class Animation(TimedAnimation):
     """
 
     """
-    def __init__(self, prepare: Prepare):
+    def __init__(self, movie: Movie):
         self.x_data: Union(None, ndarray)= None
-        self.prepare: Prepare = prepare
+        self.movie: Movie = movie
         self.n_images: int = 0
         self.n_axes: int = 0
         self.fig: Figure = None
@@ -29,19 +29,19 @@ class Animation(TimedAnimation):
         self.labels: List(Text) = []
 
 
-    def init_labels(self):
+    def _init_labels(self):
         pass
 
-    def init_annotations(self):
+    def _init_annotations(self):
         pass
 
-    def init_traces(self):
+    def _init_traces(self):
         pass
 
-    def init_images(self):
+    def _init_images(self):
         pass
 
-    def make_x_data(self):
+    def _make_x_data(self):
         pass
 
     def _draw_frame(self, frame):
