@@ -8,6 +8,7 @@ Helper functions to make animations of images with corresponding traces and labe
 ------------
 Example use:
 ------------
+
 .. code-block:: python
     from Animate import Animation
 
