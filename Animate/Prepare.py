@@ -206,13 +206,14 @@ class Prepare:
         img['ymax'], img['ymin'] = self._get_ylim(ylim_type, ylim_value, data)
         self.images.append(img)
 
-    def add_trace(self, data, axis=0, name=None, ylim_type='p_top', ylim_value=0.1):
+    def add_trace(self, data, axis=0, name=None, ylim_type='p_top', ylim_value=0.1, **kwargs):
         if len(self.axes) <= axis:
             raise RuntimeError('Please create axis %d before adding traces' % axis)
         trace = dict()
         trace['data'] = data
         trace['name'] = name
         trace['axis'] = axis
+        trace['kwargs'] = kwargs
         trace['ymax'], trace['ymin'] = self._get_ylim(ylim_type, ylim_value, data)
         self.traces.append(trace)
 

@@ -66,7 +66,7 @@ class Animation(TimedAnimation):
                 ax.add_line(line)
             elif annotation['type'] == 'circle':
                 c = plt.Circle((annotation['x'], annotation['y']), annotation['radius'], axes=ax,
-                            **annotation['kwargs'])
+                               **annotation['kwargs'])
                 ax.add_patch(c)
             elif annotation['type'] == 'annotation':
                 ax.annotate(annotation['text'], xy=annotation['xy'], xytext=annotation['xy_text'],
@@ -104,7 +104,11 @@ class Animation(TimedAnimation):
                 trace_index = np.where(trace_axis == i)[0]
                 for j, index in enumerate(trace_index):
                     trace = self.prepare.traces[index]
-                    line = Line2D(self.x_data, trace['data'], color=colors[j])
+                    if 'color' in trace['kwargs']:
+                        line = Line2D(self.x_data, trace['data'], **trace['kwargs'])
+                    else:
+                        # use the default from the color cycle
+                        line = Line2D(self.x_data, trace['data'], color=colors[j], **trace_axis['kwargs'])
                     ax.add_line(line)
                     self.traces.append(line)
 
