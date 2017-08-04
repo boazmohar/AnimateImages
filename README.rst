@@ -10,6 +10,7 @@ Example use:
 ------------
 
 .. code-block:: python
+
     from Animate import Animation
 
     prepare = Prepare('a', 'b', None)
