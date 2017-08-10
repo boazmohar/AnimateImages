@@ -1,13 +1,12 @@
 from __future__ import print_function, division
 
 import copy
-import os
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .Animate import Animation
+from .Animation import Animation
 
 
 class Movie:
@@ -27,15 +26,20 @@ class Movie:
     """
 
     def __init__(self, style=None, dt=1.0 / 14, fig_kwargs={'figsize': (10, 10)},fig_color='black',
-                 height_ratios=(4, 1, 1)):
+                 height_ratio=2):
         """
 
         :param style: same as matplotlib.style.set mainly a dict with rcparams key-value pairs.
         These params will be applied to all subplots
+        :param dt:
+        :param fig_kwargs:
+        :param fig_color:
+        :param height_ratio: 1 will make height rations (1, 1), (2, 1, 1), (3, 1, 1, 1)
+        2 will make height rations (2, 1), (4, 1, 1), (6, 1, 1, 1)
         """
         self.dt = dt
         self.fig_color = fig_color
-        self.height_ratios = height_ratios
+        self.height_ratio = height_ratio
         self.fig_kwargs = fig_kwargs
         self.images = []
         self.traces = []
@@ -161,27 +165,43 @@ class Movie:
         self.add_text_annotation(axis=axis, x=mid, y=y - text_offset, text=um_width + 'um', ha='center', fontsize=14,
                                  color='white')
 
-    def _get_ylim(self, ylim_type, ylim_value, data):
+    def get_ylim(self, ylim_type, ylim_value, data, same_type='image'):
         """
 
-        :param ylim_type: 
-        :param ylim_value: 
-        :param data: 
-        :return: 
+        :param ylim_type: str:
+        'set': expects y_lim_value to be (min, max) tuple
+        'same': ylim_value is a trace or image reference number (according to 'same_type')
+        'p_top': clip to the ylim_value percentile from the top
+        'p_bottom': clip to the ylim_value percentile from the bottom
+        'p_both': clip to the ylim_value percentile from the bottom and top
+        :param ylim_value: according to 'ylim_type'
+        :param data: image or trace to work on
+        :return: tuple of min and max
         """
         if ylim_type == 'set':
-            assert len(ylim_value) == 2
-            return ylim_value[0], ylim_value[1]
+            if hasattr(ylim_value, '__len__') and len(ylim_value) == 2:
+                return ylim_value[0], ylim_value[1]
+            else:
+                raise RuntimeError('ylim type set to set but len of ylim_value is not len 2')
         elif ylim_type == 'same':
-            # todo: set type of same image or axis
-            assert len(self.images) < ylim_value
-            return self.images[ylim_value]['ymin'], self.images[ylim_value]['ymax']
+            if same_type == 'image':
+                if len(self.images) > ylim_value:
+                    return self.images[ylim_value]['ymin'], self.images[ylim_value]['ymax']
+                else:
+                    raise RuntimeError('Tried to have same y limits as %d but # of images is %d' % (ylim_value,
+                                                                                                    len(self.images)))
+            elif same_type == 'axis':
+                if len(self.axes) > ylim_value:
+                    return self.axes[ylim_value]['ymin'], self.axes[ylim_value]['ymax']
+                else:
+                    raise RuntimeError('Tried to have same y limits as %d but # of axes is %d' % (ylim_value,
+                                                                                                    len(self.axes)))
         elif ylim_type == 'p_top':
-            return np.nanpercentile(data, 100.0 - ylim_value), np.nanmin(data)
+            return np.nanmin(data), np.nanpercentile(data, 100.0 - ylim_value)
         elif ylim_type == 'p_bottom':
-            return np.nanmax(data), np.nanpercentile(data, ylim_value)
+            return np.nanpercentile(data, ylim_value), np.nanmax(data)
         elif ylim_type == 'p_both':
-            return np.nanpercentile(data, 100.0 - ylim_value), np.nanpercentile(data, ylim_value)
+            return np.nanpercentile(data, ylim_value), np.nanpercentile(data, 100.0 - ylim_value)
         else:
             raise RuntimeError("Expected 'p_top', 'p_bottom', 'p_both', 'set' or 'same' got: %s" % ylim_type)
 
@@ -201,32 +221,34 @@ class Movie:
         >>> style=['dark_img', {'image.cmap': 'magma'}]
         :return: Adds an image animation
         """
+        if len(data.shape) != 3:
+            raise ValueError('Expected 3d numpy array as image got: %s', data.shape)
         img = dict()
         img['data'] = data
         img['style'] = style
         img['c_title'] = c_title
         img['c_style'] = c_style
-        img['ymax'], img['ymin'] = self._get_ylim(ylim_type, ylim_value, data)
+        img['ymin'], img['ymax'] = self.get_ylim(ylim_type, ylim_value, data)
         self.images.append(img)
 
-    def add_trace(self, data, axis=0, name=None, ylim_type='p_top', ylim_value=0.1, **kwargs):
+    def add_trace(self, data, axis=0, name=None, **kwargs):
         if len(self.axes) <= axis:
             raise RuntimeError('Please create axis %d before adding traces' % axis)
-        trace = dict()
-        trace['data'] = data
-        trace['name'] = name
-        trace['axis'] = axis
-        trace['kwargs'] = kwargs
-        trace['ymax'], trace['ymin'] = self._get_ylim(ylim_type, ylim_value, data)
-        self.traces.append(trace)
+        local_vars = locals()
+        del local_vars['self']
+        self.traces.append(local_vars)
 
     def add_axis(self, x_label, y_label, style='dark_trace', running_line={'color': 'white', 'lw': 2},
-                 bottom_left_ticks=True):
+                 bottom_left_ticks=True, ylim_type='p_top', ylim_value=0.1):
         """
 
-        :param x_label:
-        :param y_label:
-        :param style:
+        :param x_label: x label
+        :param y_label: y label
+        :param style: see matplotlib.styles
+        :param ylim_type: how to set the y limits. 'p_top' will clip the top ylim_value values in %.
+        'p_bottom' same for bottom % pixels. 'p_both' will clip both ends. 'set' will expect a tuple [min max]
+        in ylim_value. 'same' will expect a index in ylim_value for the axis number to take from.
+        :param ylim_value: see ylim_type
         :param running_line: if not None will display a line with the properties provided example:
          running_line = {'color': 'white', 'lw': 3}
          :param bottom_left_ticks: if True will only show the bottom left ticks of the axis
@@ -236,7 +258,7 @@ class Movie:
         del local_vars['self']
         self.axes.append(local_vars)
 
-    def save(self, path, fps, codec='h264'):
+    def save(self, path, fps=14, codec='h264'):
         """
 
         :param path: full path to save animation

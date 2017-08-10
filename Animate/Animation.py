@@ -1,5 +1,6 @@
 from __future__ import print_function, division
 
+import copy
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import TimedAnimation
@@ -74,17 +75,19 @@ class Animation(TimedAnimation):
                 raise RuntimeError('Annotation type is wrong: %s' % annotation['type'])
 
     def _init_traces(self):
-        gs = GridSpec(1 + self.n_axes, self.n_images, height_ratios=self.movie.height_ratios)
-        trace_axis = np.array(map(lambda x: x['axis'], self.movie.traces))
+        height_ratios = (self.n_axes * self.movie.height_ratio, ) + (1, ) * self.n_axes
+        gs = GridSpec(1 + self.n_axes, self.n_images, height_ratios=height_ratios)
+        trace_axis = np.array(list(map(lambda x: x['axis'], self.movie.traces)))
 
         # for each axis
         for i, axis in enumerate(self.movie.axes):
+            print('i: %d' % i)
             # set correct style
             with plt.style.context(axis['style'], after_reset=True):
 
                 # get the color cycle
                 colors = plt.style.library[axis['style']].get('axes.prop_cycle')
-                colors = map(lambda x: x['color'], list(colors))
+                colors = list(map(lambda x: x['color'], list(colors)))
                 ax = self.fig.add_subplot(gs[i + 1, :])
                 self.trace_axes.append(ax)
 
@@ -101,25 +104,30 @@ class Animation(TimedAnimation):
 
                 # find the traces that belong to this axis
                 trace_index = np.where(trace_axis == i)[0]
+                print('trace_index: %s' % trace_axis)
+                all_data = []
                 for j, index in enumerate(trace_index):
+                    print('j: %d' % j)
                     trace = self.movie.traces[index]
                     if 'color' in trace['kwargs']:
                         line = Line2D(self.x_data, trace['data'], **trace['kwargs'])
                     else:
                         # use the default from the color cycle
-                        line = Line2D(self.x_data, trace['data'], color=colors[j], **trace_axis['kwargs'])
+                        line = Line2D(self.x_data, trace['data'], color=colors[j], **trace['kwargs'])
                     ax.add_line(line)
+                    all_data.append(copy.deepcopy(trace['data']))
                     self.traces.append(line)
-
-                    if j == 0:
-                        ax.set_ylim(trace['ymin'], trace['ymax'])
-                        ax.set_xlim(0, self.x_data.max())
-                    else:
-                        y_min, y_max = ax.get_ylim()
-                        ax.set_ylim(min([trace['ymin'], y_min]), max([trace['ymax'], y_max]))
+                if len(all_data) > 1:
+                    all_data = np.concatenate(all_data)
+                else:
+                    print(all_data)
+                    all_data = all_data[0]
+                y_min, y_max = self.movie.get_ylim(axis['ylim_type'], axis['ylim_value'], all_data, same_type='axis')
+                ax.set_ylim(y_min, y_max)
 
     def _init_images(self):
-        gs = GridSpec(1 + self.n_axes, self.n_images, height_ratios=self.movie.height_ratios)
+        height_ratios = (self.n_axes * self.movie.height_ratio,) + (1,) * self.n_axes
+        gs = GridSpec(1 + self.n_axes, self.n_images, height_ratios=height_ratios)
         for i, image in enumerate(self.movie.images):
             with plt.style.context(image['style'], after_reset=True):
                 ax = self.fig.add_subplot(gs[0, i])

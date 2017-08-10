@@ -4,12 +4,12 @@ from typing import Union, List
 class Movie:
     def __init__(self, base_path: str, name: str, style: Union(tuple, str), dt: float,
                  fig_kwargs:Union(None, dict)={'figsize': (10, 10)}, fig_color: string='black',
-                 height_ratios: tuple=(4, 1, 1)):
+                 height_ratio: float=2):
         self.base_path: str
         self.name: str
         self.dt : float = dt
         self.fig_color: str
-        self.height_ratios: tuple
+        self.height_ratio: float
         self.fig_kwargs: dict
         self.traces: List(dict) = []
         self.images: List(dict) = []
@@ -48,7 +48,7 @@ class Movie:
     def add_scale_bar(self, axis: int=0, pixel_width:int =40, um_width: str='20'):
         pass
 
-    def _get_ylim(self, ylim_type: str, ylim_value: Union(tuple, float), data: ndarray):
+    def get_ylim(self, ylim_type: str, ylim_value: Union(tuple, float), data: ndarray):
         pass
 
     def add_image(self, data: ndarray, style:Union(str, list), c_title: Union(None, str)=None,
@@ -56,10 +56,10 @@ class Movie:
                   ylim_value: Union(float, tuple, list)=0.1):
         pass
 
-    def add_trace(self, data: ndarray, axis: int=0, name: Union(None, str)=None, ylim_type: str='p_top',
-                  ylim_value: Union(float, tuple, list)=0.1):
+    def add_trace(self, data: ndarray, axis: int=0, name: Union(None, str)=None):
         pass
 
-    def add_axis(self, x_label: str, y_label: str, style: Union(tuple, str)='dark_trace', running_line: dict,
-                 bottom_left_ticks: bool=True):
+    def add_axis(self, x_label: str, y_label: str, style: Union(tuple, str)='dark_trace',
+                 running_line: dict={'color': 'white', 'lw': 2}, bottom_left_ticks: bool=True, ylim_type: str='p_top',
+                 ylim_value: Union(float, tuple, list)=0.1):
         pass
