@@ -2,6 +2,8 @@ from types import Union, List
 
 from matplotlib.animation import TimedAnimation
 from matplotlib.axis import Axis
+
+from matplotlib.gridspec import GridSpec
 from matplotlib.figure import Figure
 from matplotlib.image import AxesImage
 from matplotlib.lines import Line2D
@@ -27,6 +29,7 @@ class Animation(TimedAnimation):
         self.traces: List(Line2D) = []
         self.running_lines: List(Line2D) = []
         self.labels: List(Text) = []
+        self.gs: GridSpec = None
 
 
     def _init_labels(self):

@@ -11,7 +11,7 @@ from .Animation import Animation
 
 class Movie:
     """ Class to movie animation of movies with traces
-        Adds all image animation to a top row of subplots 
+        Adds all image animation to a top row of subplots
         and adds all the trace animation plots to rows 2, 3, ...
 
         Dynamic componants (will update every cycle):
@@ -25,7 +25,7 @@ class Movie:
 
     """
 
-    def __init__(self, style=None, dt=1.0 / 14, fig_kwargs={'figsize': (10, 10)},fig_color='black',
+    def __init__(self, style=None, dt=1.0 / 14, fig_kwargs={'figsize': (10, 10)}, fig_color='black',
                  height_ratio=2):
         """
 
@@ -100,7 +100,7 @@ class Movie:
         :param s_format: string format to use on the values
         :param size: font size
         :param kwargs: to be sent to the plt.text function
-        :return: 
+        :return:
         """
         local_vars = locals()
         del local_vars['self']
@@ -115,7 +115,7 @@ class Movie:
                     values = np.arange(self.traces[0]['data'].shape[0]) * self.dt
             else:
                 values = np.arange(self.images[0]['data'].shape[0]) * self.dt
-        self.add_label(x, y, values, axis,  s_format, size, **kwargs)
+        self.add_label(x, y, values, axis, s_format, size, **kwargs)
 
     def add_behavior_label(self, x=0.9, y=0.08, values=None, axis=0, s_format='%s', size=14, **kwargs):
         self.add_label(x=x, y=y, values=values, axis=axis, s_format=s_format, size=size, kwargs=kwargs)
@@ -165,7 +165,7 @@ class Movie:
         self.add_text_annotation(axis=axis, x=mid, y=y - text_offset, text=um_width + 'um', ha='center', fontsize=14,
                                  color='white')
 
-    def get_ylim(self, ylim_type, ylim_value, data, same_type='image'):
+    def get_ylim(self, ylim_type, ylim_value, data):
         """
 
         :param ylim_type: str:
@@ -184,18 +184,11 @@ class Movie:
             else:
                 raise RuntimeError('ylim type set to set but len of ylim_value is not len 2')
         elif ylim_type == 'same':
-            if same_type == 'image':
-                if len(self.images) > ylim_value:
-                    return self.images[ylim_value]['ymin'], self.images[ylim_value]['ymax']
-                else:
-                    raise RuntimeError('Tried to have same y limits as %d but # of images is %d' % (ylim_value,
-                                                                                                    len(self.images)))
-            elif same_type == 'axis':
-                if len(self.axes) > ylim_value:
-                    return self.axes[ylim_value]['ymin'], self.axes[ylim_value]['ymax']
-                else:
-                    raise RuntimeError('Tried to have same y limits as %d but # of axes is %d' % (ylim_value,
-                                                                                                    len(self.axes)))
+            if len(self.images) > ylim_value:
+                return self.images[ylim_value]['ymin'], self.images[ylim_value]['ymax']
+            else:
+                raise RuntimeError('Tried to have same y limits as %d but # of images is %d' % (ylim_value,
+                                                                                                len(self.images)))
         elif ylim_type == 'p_top':
             return np.nanmin(data), np.nanpercentile(data, 100.0 - ylim_value)
         elif ylim_type == 'p_bottom':
@@ -205,7 +198,8 @@ class Movie:
         else:
             raise RuntimeError("Expected 'p_top', 'p_bottom', 'p_both', 'set' or 'same' got: %s" % ylim_type)
 
-    def add_image(self, data, style='dark_img', c_title=None, c_style='dark_background', ylim_type='p_top', ylim_value=0.1):
+    def add_image(self, data, style='dark_img', c_title=None, c_style='dark_background', ylim_type='p_top',
+                  ylim_value=0.1):
         """
 
         :param data: 3d array (n, x, y)
@@ -217,7 +211,7 @@ class Movie:
         :param ylim_value: see ylim_type
         :param style: see matplotlib.style.set_. ability to compose styles. example: base style is dark for images
         .. _matplotlib.style.set: http://matplotlib.org/api/style_api.html?highlight=style#matplotlib.style.use
-         but with a different color map: 
+         but with a different color map:
         >>> style=['dark_img', {'image.cmap': 'magma'}]
         :return: Adds an image animation
         """

@@ -45,7 +45,7 @@ def test_set_ylim_image():
     assert "Expected 'p_top'" in str(ex.value)
 
 
-def test_set_ylim_axis():
+def test_set_ylim_axis_top():
     m = Movie(dt=1.0 / 14)
     img = np.arange(250).reshape(10, 5, 5)
     m.add_image(img, 'dark_img')
@@ -57,3 +57,100 @@ def test_set_ylim_axis():
     y_min, y_max = ax.get_ylim()
     assert np.isclose(y_min, 0)
     assert np.isclose(y_max, 4.5)
+
+
+def test_set_ylim_axis_bottom():
+    m = Movie(dt=1.0 / 14)
+    img = np.arange(250).reshape(10, 5, 5)
+    m.add_image(img, 'dark_img')
+    data = np.arange(10)
+    m.add_axis('test', 'test', ylim_type='p_bottom', ylim_value=50)
+    m.add_trace(data)
+    a = Animation(m)
+    ax = a.trace_axes[-1]
+    y_min, y_max = ax.get_ylim()
+    assert np.isclose(y_min, 4.5)
+    assert np.isclose(y_max, 9)
+
+
+def test_set_ylim_axis_both():
+    m = Movie(dt=1.0 / 14)
+    img = np.arange(250).reshape(10, 5, 5)
+    m.add_image(img, 'dark_img')
+    data = np.arange(10)
+    m.add_axis('test', 'test', ylim_type='p_both', ylim_value=10)
+    m.add_trace(data)
+    a = Animation(m)
+    ax = a.trace_axes[-1]
+    y_min, y_max = ax.get_ylim()
+    assert np.isclose(y_min, 0.9)
+    assert np.isclose(y_max, 8.1)
+
+
+def test_set_ylim_axis_set_fail():
+    m = Movie(dt=1.0 / 14)
+    img = np.arange(250).reshape(10, 5, 5)
+    m.add_image(img, 'dark_img')
+    data = np.arange(10)
+    with pytest.raises(RuntimeError) as ex:
+        m.add_axis('test', 'test', ylim_type='set', ylim_value=10)
+        m.add_trace(data)
+        a = Animation(m)
+    assert 'ylim type set to set but len of ylim_value is not len 2' in str(ex.value)
+
+
+def test_set_ylim_axis_set():
+    m = Movie(dt=1.0 / 14)
+    img = np.arange(250).reshape(10, 5, 5)
+    m.add_image(img, 'dark_img')
+    data = np.arange(10)
+    m.add_axis('test', 'test', ylim_type='set', ylim_value=(2, 10))
+    m.add_trace(data)
+    a = Animation(m)
+    ax = a.trace_axes[-1]
+    y_min, y_max = ax.get_ylim()
+    assert np.isclose(y_min, 2)
+    assert np.isclose(y_max, 10)
+
+
+def test_set_ylim_axis_same_fail():
+    m = Movie(dt=1.0 / 14)
+    img = np.arange(250).reshape(10, 5, 5)
+    m.add_image(img, 'dark_img')
+    with pytest.raises(RuntimeError) as ex:
+        m.add_axis('test', 'test', ylim_type='same', ylim_value=1)
+        m.add_trace(np.arange(10))
+        _ = Animation(m)
+    assert 'Tried to have same y limits ' in str(ex.value)
+
+
+def test_set_ylim_axis_same():
+    m = Movie(dt=1.0 / 14)
+    img = np.arange(250).reshape(10, 5, 5)
+    m.add_image(img, 'dark_img')
+    data = np.arange(10)
+    m.add_axis('test', 'test', ylim_type='set', ylim_value=(2, 10))
+    m.add_trace(data)
+    m.add_axis('test', 'test', ylim_type='same', ylim_value=0)
+    m.add_trace(data)
+    m.add_trace(data, axis=1)
+    a = Animation(m)
+    ax = a.trace_axes[-1]
+    y_min, y_max = ax.get_ylim()
+    assert np.isclose(y_min, 2)
+    assert np.isclose(y_max, 10)
+
+
+def test_set_ylim_axis_two():
+    m = Movie(dt=1.0 / 14)
+    img = np.arange(250).reshape(10, 5, 5)
+    m.add_image(img, 'dark_img')
+    data = np.arange(10)
+    m.add_axis('test', 'test', ylim_type='p_top', ylim_value=10)
+    m.add_trace(data)
+    m.add_trace(np.arange(10, 20))
+    a = Animation(m)
+    ax = a.trace_axes[-1]
+    y_min, y_max = ax.get_ylim()
+    assert np.isclose(y_min, 0)
+    assert np.isclose(y_max, 17.1)

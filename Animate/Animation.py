@@ -32,6 +32,11 @@ class Animation(TimedAnimation):
             self.fig = plt.figure()
         rect = self.fig.patch
         rect.set_facecolor(self.movie.fig_color)
+        if self.n_axes > 0:
+            height_ratios = (self.n_axes * self.movie.height_ratio,) + (1,) * self.n_axes
+            self.gs = GridSpec(1 + self.n_axes, self.n_images, height_ratios=height_ratios)
+        else:
+            self.gs = GridSpec(1, self.n_images)
         # images
         self.img_axes = []
         self.images = []
@@ -75,20 +80,16 @@ class Animation(TimedAnimation):
                 raise RuntimeError('Annotation type is wrong: %s' % annotation['type'])
 
     def _init_traces(self):
-        height_ratios = (self.n_axes * self.movie.height_ratio, ) + (1, ) * self.n_axes
-        gs = GridSpec(1 + self.n_axes, self.n_images, height_ratios=height_ratios)
         trace_axis = np.array(list(map(lambda x: x['axis'], self.movie.traces)))
-
         # for each axis
         for i, axis in enumerate(self.movie.axes):
-            print('i: %d' % i)
             # set correct style
             with plt.style.context(axis['style'], after_reset=True):
 
                 # get the color cycle
                 colors = plt.style.library[axis['style']].get('axes.prop_cycle')
                 colors = list(map(lambda x: x['color'], list(colors)))
-                ax = self.fig.add_subplot(gs[i + 1, :])
+                ax = self.fig.add_subplot(self.gs[i + 1, :])
                 self.trace_axes.append(ax)
 
                 ax.set_xlabel(axis['x_label'])
@@ -104,10 +105,10 @@ class Animation(TimedAnimation):
 
                 # find the traces that belong to this axis
                 trace_index = np.where(trace_axis == i)[0]
-                print('trace_index: %s' % trace_axis)
+                if len(trace_index) == 0:
+                    raise RuntimeError('Axis %d with no traces' % i)
                 all_data = []
                 for j, index in enumerate(trace_index):
-                    print('j: %d' % j)
                     trace = self.movie.traces[index]
                     if 'color' in trace['kwargs']:
                         line = Line2D(self.x_data, trace['data'], **trace['kwargs'])
@@ -120,17 +121,21 @@ class Animation(TimedAnimation):
                 if len(all_data) > 1:
                     all_data = np.concatenate(all_data)
                 else:
-                    print(all_data)
                     all_data = all_data[0]
-                y_min, y_max = self.movie.get_ylim(axis['ylim_type'], axis['ylim_value'], all_data, same_type='axis')
+                if axis['ylim_type'] == 'same':
+                    if axis['ylim_value'] >= self.n_axes:
+                        raise RuntimeError('Tried to have same y limits as %d but # of axes is %d' %
+                                           (axis['ylim_value'], len(self.images)))
+                    else:
+                        y_min, y_max = self.trace_axes[axis['ylim_value']].get_ylim()
+                else:
+                    y_min, y_max = self.movie.get_ylim(axis['ylim_type'], axis['ylim_value'], all_data)
                 ax.set_ylim(y_min, y_max)
 
     def _init_images(self):
-        height_ratios = (self.n_axes * self.movie.height_ratio,) + (1,) * self.n_axes
-        gs = GridSpec(1 + self.n_axes, self.n_images, height_ratios=height_ratios)
         for i, image in enumerate(self.movie.images):
             with plt.style.context(image['style'], after_reset=True):
-                ax = self.fig.add_subplot(gs[0, i])
+                ax = self.fig.add_subplot(self.gs[0, i])
                 self.img_axes.append(ax)
                 im = ax.imshow(image['data'][0, :, :], animated=True, vmin=image['ymin'],
                                vmax=image['ymax'])
@@ -155,10 +160,11 @@ class Animation(TimedAnimation):
             label.set_text(data['s_format'] % data['values'][frame])
             drawn_artist.append(label)
         # running lines
-        for line in self.running_lines:
-            y_limits = line.axes.get_ylim()
-            line.set_data([self.x_data[frame], self.x_data[frame]], [y_limits[0], y_limits[1]])
-            drawn_artist.append(line)
+        if self.n_axes > 0:
+            for line in self.running_lines:
+                y_limits = line.axes.get_ylim()
+                line.set_data([self.x_data[frame], self.x_data[frame]], [y_limits[0], y_limits[1]])
+                drawn_artist.append(line)
         self._drawn_artists = drawn_artist
 
     def new_frame_seq(self):

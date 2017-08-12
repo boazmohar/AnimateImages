@@ -2,11 +2,9 @@ from numpy import ndarray
 from typing import Union, List
 
 class Movie:
-    def __init__(self, base_path: str, name: str, style: Union(tuple, str), dt: float,
-                 fig_kwargs:Union(None, dict)={'figsize': (10, 10)}, fig_color: string='black',
+    def __init__(self, style: Union(tuple, str, None)=None, dt: float= 1.0/14,
+                 fig_kwargs:Union(None, dict)={'figsize': (10, 10)}, fig_color: str='black',
                  height_ratio: float=2):
-        self.base_path: str
-        self.name: str
         self.dt : float = dt
         self.fig_color: str
         self.height_ratio: float
@@ -16,6 +14,7 @@ class Movie:
         self.annotations: List(ndarray) = []
         self.labels: List(dict) = []
         self.styles: list = []
+        self.style: Union(str, list, None) = None
         self.axes: List(dict) = []
 
 
