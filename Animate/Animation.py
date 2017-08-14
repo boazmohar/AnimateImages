@@ -32,26 +32,6 @@ class Animation(TimedAnimation):
             self.fig = plt.figure()
         rect = self.fig.patch
         rect.set_facecolor(self.movie.fig_color)
-        if self.n_axes > 0:
-            height_ratios = (self.n_axes * self.movie.height_ratio,) + (1,) * self.n_axes
-            self.gs = GridSpec(1 + self.n_axes, self.n_images, height_ratios=height_ratios)
-        else:
-            self.gs = GridSpec(1, self.n_images)
-        # images
-        self.img_axes = []
-        self.images = []
-        self._init_images()
-        # traces
-        if self.n_axes > 0:
-            self.trace_axes = []
-            self.traces = []
-            self.running_lines = []
-            self._init_traces()
-        # annotations
-        self._init_annotations()
-        # labels
-        self.labels = []
-        self._init_labels()
         TimedAnimation.__init__(self, self.fig, interval=70, blit=True)
 
     def _init_labels(self):
@@ -171,4 +151,23 @@ class Animation(TimedAnimation):
         return iter(range(self.movie.images[0]['data'].shape[0]))
 
     def _init_draw(self):
-        pass
+        if self.n_axes > 0:
+            height_ratios = (self.n_axes * self.movie.height_ratio,) + (1,) * self.n_axes
+            self.gs = GridSpec(1 + self.n_axes, self.n_images, height_ratios=height_ratios)
+        else:
+            self.gs = GridSpec(1, self.n_images)
+            # images
+        self.img_axes = []
+        self.images = []
+        self._init_images()
+        # traces
+        if self.n_axes > 0:
+            self.trace_axes = []
+            self.traces = []
+            self.running_lines = []
+            self._init_traces()
+        # annotations
+        self._init_annotations()
+        # labels
+        self.labels = []
+        self._init_labels()
