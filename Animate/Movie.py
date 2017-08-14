@@ -232,7 +232,7 @@ class Movie:
 
     def add_axis(self, x_label, y_label, style='dark_trace', running_line={'color': 'white', 'lw': 2},
                  bottom_left_ticks=True, ylim_type='p_top', ylim_value=0.1, tight_x=True,
-                 label_kwargs={'fontsize': 16}, legend_kwargs={'frameon': False}):
+                 label_kwargs={'fontsize': 16}, legend_kwargs={'frameon': False}, **kwargs):
         """
 
         :param x_label: x label

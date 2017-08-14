@@ -70,7 +70,7 @@ class Animation(TimedAnimation):
                 # get the color cycle
                 colors = plt.style.library[axis['style']].get('axes.prop_cycle')
                 colors = list(map(lambda x: x['color'], list(colors)))
-                ax = self.fig.add_subplot(self.gs[i + 1, :])
+                ax = self.fig.add_subplot(self.gs[i + 1, :], **axis['kwargs'])
                 self.trace_axes.append(ax)
 
                 ax.set_xlabel(axis['x_label'], **axis['label_kwargs'])
