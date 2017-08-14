@@ -76,15 +76,13 @@ class Movie:
         styles[u'light_img'] = light_img
 
         dark_trace = copy.deepcopy(dark_background)
-        dark_trace.update({u'axes.spines.top': False, u'axes.spines.right': False})
+        dark_trace.update({u'axes.spines.top': False, u'axes.spines.right': False, u'axes.labelsize': u'x-large',
+                           u'axes.titlesize': u'x-large'})
         styles[u'dark_trace'] = dark_trace
 
         light_trace = copy.deepcopy(default)
-        light_trace.update({u'axes.spines.top': False, u'axes.spines.right': False,
-                            u'axes.spines.bottom': False, u'axes.spines.left': False,
-                            u'axes.facecolor': (1, 1, 1, 0), u'axes.edgecolor': (1, 1, 1, 0),
-                            u'xtick.color': (1, 1, 1, 0), u'ytick.color': (1, 1, 1, 0), u'grid.alpha': 0,
-                            u'image.interpolation': 'None'})
+        light_trace.update({u'axes.spines.top': False, u'axes.spines.right': False,u'axes.labelsize': u'x-large',
+                            u'axes.titlesize': u'x-large'})
         styles[u'light_trace'] = light_trace
 
         self.styles.update(styles)
@@ -262,4 +260,4 @@ class Movie:
         :return:
         """
         animation = Animation(self)
-        animation.save(path, codec=codec, fps=fps)
+        animation.save(path, codec=codec, fps=fps, savefig_kwargs={'facecolor': self.fig_color})
