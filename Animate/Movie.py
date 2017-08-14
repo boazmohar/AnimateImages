@@ -76,13 +76,13 @@ class Movie:
         styles[u'light_img'] = light_img
 
         dark_trace = copy.deepcopy(dark_background)
-        dark_trace.update({u'axes.spines.top': False, u'axes.spines.right': False, u'axes.labelsize': u'x-large',
-                           u'axes.titlesize': u'x-large'})
+        dark_trace.update({u'axes.spines.top': False, u'axes.spines.right': False, u'axes.labelsize': u'xx-large',
+                           u'axes.titlesize': u'xx-large', u'xtick.labelsize': 14, u'ytick.labelsize': 14})
         styles[u'dark_trace'] = dark_trace
 
         light_trace = copy.deepcopy(default)
-        light_trace.update({u'axes.spines.top': False, u'axes.spines.right': False,u'axes.labelsize': u'x-large',
-                            u'axes.titlesize': u'x-large'})
+        light_trace.update({u'axes.spines.top': False, u'axes.spines.right': False,u'axes.labelsize': u'xx-large',
+                            u'axes.titlesize': u'xx-large', u'xtick.labelsize': 14, u'ytick.labelsize': 14})
         styles[u'light_trace'] = light_trace
 
         self.styles.update(styles)
