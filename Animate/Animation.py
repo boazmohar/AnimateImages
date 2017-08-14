@@ -63,6 +63,7 @@ class Animation(TimedAnimation):
         trace_axis = np.array(list(map(lambda x: x['axis'], self.movie.traces)))
         # for each axis
         for i, axis in enumerate(self.movie.axes):
+            axis['legend_handles'] = []
             # set correct style
             with plt.style.context(axis['style'], after_reset=True):
 
@@ -72,8 +73,8 @@ class Animation(TimedAnimation):
                 ax = self.fig.add_subplot(self.gs[i + 1, :])
                 self.trace_axes.append(ax)
 
-                ax.set_xlabel(axis['x_label'])
-                ax.set_ylabel(axis['y_label'])
+                ax.set_xlabel(axis['x_label'], **axis['label_kwargs'])
+                ax.set_ylabel(axis['y_label'], **axis['label_kwargs'])
                 if axis['bottom_left_ticks']:
                     ax.yaxis.set_ticks_position('left')
                     ax.xaxis.set_ticks_position('bottom')
@@ -95,6 +96,8 @@ class Animation(TimedAnimation):
                     else:
                         # use the default from the color cycle
                         line = Line2D(self.x_data, trace['data'], color=colors[j], **trace['kwargs'])
+                    if 'label' in trace['kwargs']:
+                        axis['legend_handles'].append(line)
                     ax.add_line(line)
                     all_data.append(copy.deepcopy(trace['data']))
                     self.traces.append(line)
@@ -111,6 +114,10 @@ class Animation(TimedAnimation):
                 else:
                     y_min, y_max = self.movie.get_ylim(axis['ylim_type'], axis['ylim_value'], all_data)
                 ax.set_ylim(y_min, y_max)
+                if axis['tight_x']:
+                    ax.set_xlim([min(self.x_data), max(self.x_data)])
+                if len(axis['legend_handles']) > 0:
+                    ax.legend(handles=axis['legend_handles'], **axis['legend_kwargs'])
 
     def _init_images(self):
         for i, image in enumerate(self.movie.images):

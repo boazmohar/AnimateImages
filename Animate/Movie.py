@@ -225,7 +225,7 @@ class Movie:
         img['ymin'], img['ymax'] = self.get_ylim(ylim_type, ylim_value, data)
         self.images.append(img)
 
-    def add_trace(self, data, axis=0, name=None, **kwargs):
+    def add_trace(self, data, axis=0, **kwargs):
         if len(self.axes) <= axis:
             raise RuntimeError('Please create axis %d before adding traces' % axis)
         local_vars = locals()
@@ -233,7 +233,8 @@ class Movie:
         self.traces.append(local_vars)
 
     def add_axis(self, x_label, y_label, style='dark_trace', running_line={'color': 'white', 'lw': 2},
-                 bottom_left_ticks=True, ylim_type='p_top', ylim_value=0.1):
+                 bottom_left_ticks=True, ylim_type='p_top', ylim_value=0.1, tight_x=True,
+                 label_kwargs={'fontsize': 16}, legend_kwargs={'frameon': False}):
         """
 
         :param x_label: x label
