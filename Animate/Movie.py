@@ -2,6 +2,7 @@ from __future__ import print_function, division
 
 import copy
 
+from  matplotlib.animation import writers
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -290,4 +291,13 @@ class Movie:
         :return:
         """
         animation = Animation(self)
-        animation.save(path, codec=codec, fps=fps, savefig_kwargs={'facecolor': self.fig_color})
+        if 'ffmpeg' in writers.avail:
+            writer = writers['ffmpeg'](fps=fps, codec=codec)
+            animation.save(path + '.mp4', writer=writer, savefig_kwargs={'facecolor': self.fig_color})
+
+        elif 'imagemagick':
+            writer = writers['imagemagick'](fps=fps, codec=codec)
+            animation.save(path + '.gif', writer=writer, savefig_kwargs={'facecolor': self.fig_color})
+        else:
+            raise ValueError('Could not find "ffmpeg" and "imagemagick", writers: %s' % writers.avail)
+
