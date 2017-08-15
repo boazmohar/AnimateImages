@@ -6,6 +6,7 @@ import numpy as np
 from matplotlib.animation import TimedAnimation
 from matplotlib.gridspec import GridSpec
 from matplotlib.lines import Line2D
+import matplotlib.patches as patches
 
 
 class Animation(TimedAnimation):
@@ -37,13 +38,18 @@ class Animation(TimedAnimation):
     def _init_labels(self):
         for label in self.movie.labels:
             ax = self.img_axes[label['axis']]
-            l = ax.text(label['x'], label['y'], label['s_format'] % label['values'][0], size=label['size'],
+            l = ax.text(label['x'], label['y'], '', size=label['size'],
                         transform=ax.transAxes, **label['kwargs'])
             self.labels.append(l)
 
     def _init_annotations(self):
         for annotation in self.movie.annotations:
-            ax = self.img_axes[annotation['axis']]
+            if annotation['axis_type'] == 'image':
+                ax = self.img_axes[annotation['axis']]
+            elif annotation['axis_type'] == 'trace':
+                ax = self.trace_axes[annotation['axis']]
+            else:
+                raise ValueError('annotation axis_type is not "image" or "trace": %s' % annotation['axis_type'])
             if annotation['type'] == 'text':
                 ax.text(annotation['x'], annotation['y'], annotation['text'], **annotation['kwargs'])
             elif annotation['type'] == 'line':
@@ -56,8 +62,12 @@ class Animation(TimedAnimation):
             elif annotation['type'] == 'annotation':
                 ax.annotate(annotation['text'], xy=annotation['xy'], xytext=annotation['xy_text'],
                             **annotation['kwargs'])
+            elif annotation['type'] == 'rectangle':
+                r = patches.Rectangle(xy=annotation['xy'], width=annotation['width'], height=annotation['height'],
+                                      angle=annotation['angle'], **annotation['kwargs'])
+                ax.add_patch(r)
             else:
-                raise RuntimeError('Annotation type is wrong: %s' % annotation['type'])
+                raise ValueError('Annotation type is wrong: %s' % annotation['type'])
 
     def _init_traces(self):
         trace_axis = np.array(list(map(lambda x: x['axis'], self.movie.traces)))
@@ -137,6 +147,7 @@ class Animation(TimedAnimation):
         self.x_data = np.arange(length) * self.movie.dt
 
     def _draw_frame(self, frame):
+        print(frame, end=', ')
         drawn_artist = []
         # images
         for im, image in zip(self.images, self.movie.images):

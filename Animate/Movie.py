@@ -118,22 +118,50 @@ class Movie:
     def add_behavior_label(self, x=0.9, y=0.08, values=None, axis=0, s_format='%s', size=14, **kwargs):
         self.add_label(x=x, y=y, values=values, axis=axis, s_format=s_format, size=size, kwargs=kwargs)
 
-    def add_annotation(self, axis, xy, xy_text, text, **kwargs):
-        self.annotations.append({'type': 'annotation', 'axis': axis, 'text': text, 'xy': xy, 'xy_text': xy_text,
-                                 'kwargs': kwargs})
+    def add_annotation(self, axis, xy, xy_text, text, axis_type='image', **kwargs):
+        """ add annotation using axis.annotate
 
-    def add_line_annotation(self, axis, x, y, **kwargs):
+        :param axis: axis number starting at 0
+        :param xy: position of the arrow
+        :param xy_text: position of the text box
+        :param text: string to write
+        :param axis_type: 'image' for images, 'trace' for traces
+        :param kwargs: will be forwarded to annotate
+        :return:
+        """
+        self.annotations.append({'type': 'annotation', 'axis': axis, 'text': text, 'xy': xy, 'xy_text': xy_text,
+                                 'axis_type': axis_type, 'kwargs': kwargs})
+
+    def add_rectangle_annotation(self, axis, xy, width, height, angle, axis_type='image', **kwargs):
+        """ add annotation using patches.Rectangle. Draw a rectangle with lower left at xy = (x, y)
+        with specified width, height and rotation angle.
+
+        :param axis: axis number starting at 0
+        :param xy: lower left corner
+        :param width: width
+        :param height:height
+        :param angle: angle
+        :param axis_type: 'image' for images, 'trace' for traces
+        :param kwargs: will be forwarded to patches.Rectangle
+        :return:
+        """
+        self.annotations.append({'type': 'rectangle', 'axis': axis, 'axis_type': axis_type, 'xy': xy, 'width': width,
+                                 'height': height, 'angle': angle, 'kwargs': kwargs})
+
+    def add_line_annotation(self, axis, x, y, axis_type='image', **kwargs):
         """
 
         :param axis: axis number of the images
         :param x: x locations
         :param y: y locations
+        :param axis_type: 'image' for images, 'trace' for traces
         :param kwargs: kwargs to be passed to Line2D
         :return:
         """
-        self.annotations.append({'type': 'line', 'axis': axis, 'x': x, 'y': y, 'kwargs': kwargs})
+        self.annotations.append({'type': 'line', 'axis': axis, 'x': x, 'y': y, 'axis_type': axis_type,
+                                 'kwargs': kwargs})
 
-    def add_text_annotation(self, axis, x, y, text, **kwargs):
+    def add_text_annotation(self, axis, x, y, text, axis_type='image', **kwargs):
         """
 
         :param axis: axis number of the images
@@ -143,10 +171,12 @@ class Movie:
         :param kwargs: kwargs to be passed to plt.text
         :return:
         """
-        self.annotations.append({'type': 'text', 'axis': axis, 'x': x, 'y': y, 'text': text, 'kwargs': kwargs})
+        self.annotations.append({'type': 'text', 'axis': axis, 'x': x, 'y': y, 'text': text, 'axis_type': axis_type,
+                                 'kwargs': kwargs})
 
-    def add_circle_annotation(self, axis, x, y, radius, **kwargs):
-        self.annotations.append({'type': 'circle', 'axis': axis, 'x': x, 'y': y, 'radius': radius, 'kwargs': kwargs})
+    def add_circle_annotation(self, axis, x, y, radius, axis_type='image', **kwargs):
+        self.annotations.append({'type': 'circle', 'axis': axis, 'x': x, 'y': y, 'radius': radius,
+                                 'axis_type': axis_type, 'kwargs': kwargs})
 
     def add_scale_bar(self, axis=0, pixel_width=40, um_width='20', y=2, text_offset=1):
         """
