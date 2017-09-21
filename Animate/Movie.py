@@ -1,4 +1,4 @@
-from __future__ import print_function, division
+from __future__ import print_function, division, unicode_literals
 
 import copy
 
@@ -227,13 +227,15 @@ class Movie:
         else:
             raise RuntimeError("Expected 'p_top', 'p_bottom', 'p_both', 'set' or 'same' got: %s" % ylim_type)
 
-    def add_image(self, data, style='dark_img', c_title=None, c_style='dark_background', ylim_type='p_top',
-                  ylim_value=0.1):
+    def add_image(self, data, animation_type='movie', style='dark_img', c_title=None, c_style='dark_background',
+                  ylim_type='p_top', ylim_value=0.1, window_size=60, window_step=3, is_rgb=False):
         """
 
-        :param data: 3d array (n, x, y)
-        :param name: axis name to be referenced by other objects such as labels
+        :param data: 3d array (n, x, y) if type is movie or (x, y) if type is window
+        :param animation_type: type of movie animation. 'movie' assume a 3d movie. 'window' does a sliding window with window_size
+        and window_step of a 2d array.
         :param c_title: title to put on the color bar
+        :param c_style
         :param ylim_type: how to set the y limits. 'p_top' will clip the top ylim_value values in %.
         'p_bottom' same for bottom % pixels. 'p_both' will clip both ends. 'set' will expect a tuple [min max]
         in ylim_value. 'same' will expect a index in ylim_value for the axis number to take from.
@@ -242,15 +244,29 @@ class Movie:
         .. _matplotlib.style.set: http://matplotlib.org/api/style_api.html?highlight=style#matplotlib.style.use
          but with a different color map:
         >>> style=['dark_img', {'image.cmap': 'magma'}]
+        :param window_size: size of window of the x axis of the movie to display
+        :param window_step: step to advance in each frame of the animation
         :return: Adds an image animation
         """
-        if len(data.shape) != 3:
-            raise ValueError('Expected 3d numpy array as image got: %s', data.shape)
+        if animation_type != 'movie' and animation_type != 'window':
+            raise ValueError('animation type should be movie or window got: %s' % animation_type)
+        if len(data.shape) != 3 and animation_type == 'movie':
+            raise ValueError('Expected 3d numpy array when animation type is movie got: %s', data.shape)
+        if len(data.shape) != 2 and animation_type == 'window' and not is_rgb:
+            raise ValueError('Expected 2d numpy array when animation type is window got: %s', data.shape)
+        if len(data.shape) != 3 and animation_type == 'window' and is_rgb and data.shape[2] == 3:
+            raise ValueError('Expected 3d numpy array when animation type is window  and is_rgb is True got: %s',
+                             data.shape)
+
         img = dict()
         img['data'] = data
         img['style'] = style
         img['c_title'] = c_title
         img['c_style'] = c_style
+        img['animation_type'] = animation_type
+        img['window_size'] = window_size
+        img['window_step'] = window_step
+        img['is_rgb'] = is_rgb
         img['ymin'], img['ymax'] = self.get_ylim(ylim_type, ylim_value, data)
         self.images.append(img)
 
