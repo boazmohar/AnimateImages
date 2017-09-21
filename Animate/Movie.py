@@ -2,7 +2,7 @@ from __future__ import print_function, division, unicode_literals
 
 import copy
 
-from  matplotlib.animation import writers
+from matplotlib.animation import writers
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -82,7 +82,7 @@ class Movie:
         styles[u'dark_trace'] = dark_trace
 
         light_trace = copy.deepcopy(default)
-        light_trace.update({u'axes.spines.top': False, u'axes.spines.right': False,u'axes.labelsize': u'xx-large',
+        light_trace.update({u'axes.spines.top': False, u'axes.spines.right': False, u'axes.labelsize': u'xx-large',
                             u'axes.titlesize': u'xx-large', u'xtick.labelsize': 14, u'ytick.labelsize': 14})
         styles[u'light_trace'] = light_trace
 
@@ -232,8 +232,8 @@ class Movie:
         """
 
         :param data: 3d array (n, x, y) if type is movie or (x, y) if type is window
-        :param animation_type: type of movie animation. 'movie' assume a 3d movie. 'window' does a sliding window with window_size
-        and window_step of a 2d array.
+        :param animation_type: type of movie animation. 'movie' assume a 3d movie. 'window' does a sliding window with
+         window_size and window_step of a 2d array.
         :param c_title: title to put on the color bar
         :param c_style
         :param ylim_type: how to set the y limits. 'p_top' will clip the top ylim_value values in %.
@@ -316,4 +316,3 @@ class Movie:
             animation.save(path + '.gif', writer=writer, savefig_kwargs={'facecolor': self.fig_color})
         else:
             raise ValueError('Could not find "ffmpeg" and "imagemagick", writers: %s' % writers.avail)
-
