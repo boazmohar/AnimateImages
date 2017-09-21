@@ -1,4 +1,4 @@
-from __future__ import print_function, division
+from __future__ import print_function, division, unicode_literals
 
 import copy
 import matplotlib.pyplot as plt
@@ -134,8 +134,17 @@ class Animation(TimedAnimation):
             with plt.style.context(image['style'], after_reset=True):
                 ax = self.fig.add_subplot(self.gs[0, i])
                 self.img_axes.append(ax)
-                im = ax.imshow(image['data'][0, :, :], animated=True, vmin=image['ymin'],
-                               vmax=image['ymax'])
+                if image['animation_type'] == 'movie':
+                    im = ax.imshow(image['data'][0, :, :], animated=True, vmin=image['ymin'],
+                                   vmax=image['ymax'])
+                elif image['animation_type'] == 'window':
+                    if image['is_rgb']:
+                        im = ax.imshow(image['data'][:, :image['window_size'], :], animated=True, vmin=image['ymin'],
+                                       vmax=image['ymax'])
+                    else:
+                        im = ax.imshow(image['data'][:, :image['window_size']], animated=True, vmin=image['ymin'],
+                                       vmax=image['ymax'])
+                    ax.set_aspect('auto')
                 self.images.append(im)
                 if image['c_title'] is not None:
                     with plt.style.context(image['c_style'], after_reset=True):
@@ -143,15 +152,26 @@ class Animation(TimedAnimation):
 
     def _make_x_data(self):
         img = self.movie.images[0]['data']
-        length = img.shape[0]
-        self.x_data = np.arange(length) * self.movie.dt
+        if self.movie.images[0]['animation_type'] == 'movie':
+            length = img.shape[0]
+            self.x_data = np.arange(length) * self.movie.dt
+        elif self.movie.images[0]['animation_type'] == 'window':
+            print('X_data not implemented yet - will fail if there are traces')
 
     def _draw_frame(self, frame):
         print(frame, end=', ')
         drawn_artist = []
         # images
         for im, image in zip(self.images, self.movie.images):
-            im.set_array(image['data'][frame, :, :])
+            if image['animation_type'] == 'movie':
+                im.set_array(image['data'][frame, :, :])
+            elif image['animation_type'] == 'window':
+                start = frame
+                stop = frame + image['window_size']
+                if image['is_rgb']:
+                    im.set_array(image['data'][:, start:stop, :])
+                else:
+                    im.set_array(image['data'][:, start:stop])
             drawn_artist.append(im)
         # labels
         for label, data in zip(self.labels, self.movie.labels):
@@ -166,7 +186,13 @@ class Animation(TimedAnimation):
         self._drawn_artists = drawn_artist
 
     def new_frame_seq(self):
-        return iter(range(self.movie.images[0]['data'].shape[0]))
+        if self.movie.images[0]['animation_type'] == 'movie':
+            return iter(range(self.movie.images[0]['data'].shape[0]))
+        elif self.movie.images[0]['animation_type'] == 'window':
+            img = self.movie.images[0]
+            length = img['data'].shape[1] - img['window_size']
+            print(range(0, length, img['window_step']))
+            return iter(range(0, length, img['window_step']))
 
     def _init_draw(self):
         if self.n_axes > 0:
