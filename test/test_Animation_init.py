@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 from Animate.Movie import Movie
 from Animate.Animation import Animation
+import matplotlib as mpl
 
 
 def test_ratio_2():
@@ -155,3 +156,10 @@ def test_x_data():
     m.add_image(img, style='dark_img')
     a = Animation(m)
     assert np.allclose(a.x_data, np.arange(40) * 0.5)
+
+
+def test_style():
+    _ = Movie(style='default')
+    assert mpl.rcParams['figure.facecolor'] == 'w'
+    _ = Movie(style='dark_background')
+    assert mpl.rcParams['figure.facecolor'] == 'black'
