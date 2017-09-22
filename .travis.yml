@@ -27,7 +27,7 @@ install:
   - pip install -r requirements-dev.txt
 
 script:
-  - py.test -s -v --cov=./pySparkUtils --pep8
+  - py.test -s -v --cov=./Animate --pep8
 
 after_success:
   - coveralls
