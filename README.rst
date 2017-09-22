@@ -40,5 +40,5 @@ Deploying
 .. code-block:: bash
 
     bumpversion patch
-    python setup sdist
+    python setup.py sdist
     twine upload \dist\...
