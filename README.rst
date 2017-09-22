@@ -22,3 +22,23 @@ Example use:
 
 
 .. image:: resources/example.gif
+
+
+-------
+Testing
+-------
+
+.. code-block:: bash
+
+    pytest --pep8 --cov=Animate --cov-report html
+
+
+---------
+Deploying
+---------
+
+.. code-block:: bash
+
+    bumpversion patch
+    python setup sdist
+    twine upload \dist\...
