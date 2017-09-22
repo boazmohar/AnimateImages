@@ -311,7 +311,7 @@ class Movie:
             writer = writers['ffmpeg'](fps=fps, codec=codec)
             animation.save(path + '.mp4', writer=writer, savefig_kwargs={'facecolor': self.fig_color})
 
-        elif 'imagemagick':
+        elif 'imagemagick' in writers.avail:
             writer = writers['imagemagick'](fps=fps, codec=codec)
             animation.save(path + '.gif', writer=writer, savefig_kwargs={'facecolor': self.fig_color})
         else:
