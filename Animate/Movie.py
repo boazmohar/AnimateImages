@@ -301,7 +301,7 @@ class Movie:
     def save(self, path, fps=14, codec='h264'):
         """
 
-        :param path: full path to save animation
+        :param path: full path to save animation (path and filename without extension)
         :param fps: frames oer second to save movie
         :param codec: codec to use (h264 was tested to be good for power point on mac and windows)
         :return:
