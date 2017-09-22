@@ -1,8 +1,6 @@
 import pytest
 import numpy as np
 from Animate.Movie import Movie
-from Animate.Animation import Animation
-import matplotlib as mpl
 
 
 def test_fail_type():

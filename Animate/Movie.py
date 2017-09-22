@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from .Animation import Animation
+from .checks import *
 
 
 class Movie:
@@ -127,6 +128,10 @@ class Movie:
         :param kwargs: will be forwarded to annotate
         :return:
         """
+        check_axis(axis)
+        check_location(xy, name='xy')
+        check_location(xy_text, name='xy_text')
+        check_axis_type(axis_type)
         self.annotations.append({'type': 'annotation', 'axis': axis, 'text': text, 'xy': xy, 'xy_text': xy_text,
                                  'axis_type': axis_type, 'kwargs': kwargs})
 
@@ -143,6 +148,12 @@ class Movie:
         :param kwargs: will be forwarded to patches.Rectangle
         :return:
         """
+        check_axis(axis)
+        check_location(xy, name='xy')
+        check_number(width, name='width')
+        check_number(height, name='height')
+        check_number(angle, name='angle')
+        check_axis_type(axis_type)
         self.annotations.append({'type': 'rectangle', 'axis': axis, 'axis_type': axis_type, 'xy': xy, 'width': width,
                                  'height': height, 'angle': angle, 'kwargs': kwargs})
 
@@ -156,6 +167,10 @@ class Movie:
         :param kwargs: kwargs to be passed to Line2D
         :return:
         """
+        check_axis(axis)
+        check_locations(x, 'x')
+        check_locations(y, 'y')
+        check_axis_type(axis_type)
         self.annotations.append({'type': 'line', 'axis': axis, 'x': x, 'y': y, 'axis_type': axis_type,
                                  'kwargs': kwargs})
 
@@ -166,30 +181,68 @@ class Movie:
         :param x: x location
         :param y: y location
         :param text: text to write
+        :param axis_type: 'image' for images, 'trace' for traces
         :param kwargs: kwargs to be passed to plt.text
         :return:
         """
+        check_axis(axis)
+        check_number(x, name='x')
+        check_number(y, name='y')
+        check_text(text, name='text')
+        check_axis_type(axis_type)
         self.annotations.append({'type': 'text', 'axis': axis, 'x': x, 'y': y, 'text': text, 'axis_type': axis_type,
                                  'kwargs': kwargs})
 
     def add_circle_annotation(self, axis, x, y, radius, axis_type='image', **kwargs):
+        """
+
+        :param axis: axis number of the images
+        :param x: x location
+        :param y: y location
+        :param radius: radius of circle
+        :param axis_type: 'image' for images, 'trace' for traces
+        :param kwargs: kwargs to be passed to plt.text
+        :return:
+        """
+        check_axis(axis)
+        check_number(x, name='x')
+        check_number(y, name='y')
+        check_number(radius, name='radius')
+        check_axis_type(axis_type)
         self.annotations.append({'type': 'circle', 'axis': axis, 'x': x, 'y': y, 'radius': radius,
                                  'axis_type': axis_type, 'kwargs': kwargs})
 
-    def add_scale_bar(self, axis=0, pixel_width=40, um_width='20', y=2, text_offset=1):
+    def add_scale_bar(self, axis=0, x_offset=0, pixel_width=40, um_width='20', y=2, text_offset=1, line_kwargs=None,
+                      text_kwargs=None):
         """
 
         :param axis: which axis
+        :param x_offset: x start position
         :param pixel_width: width of line in pixels
         :param um_width: text to write
         :param y: y position
-        :param text_offset: offset of text in relation to the line
+        :param text_offset: offset of text in relation to the line in y
         :return:
         """
-        self.add_line_annotation(axis=axis, x=(0, pixel_width), y=(y, y), color='white', lw=3)
-        mid = int(pixel_width / 2)
-        self.add_text_annotation(axis=axis, x=mid, y=y - text_offset, text=um_width + 'um', ha='center', fontsize=14,
-                                 color='white')
+        check_axis(axis)
+        check_number(x_offset, name='x_offset')
+        check_number(pixel_width, name='pixel_width')
+        check_text(um_width, name='um_width')
+        check_number(y, name='y')
+        check_number(text_offset, name='text_offset')
+        stop = x_offset + pixel_width
+        if line_kwargs is None:
+            self.add_line_annotation(axis=axis, x=(x_offset, stop), y=(y, y), color='white', lw=3)
+        else:
+            check_dict(line_kwargs, name='line_kwargs')
+            self.add_line_annotation(axis=axis, x=(x_offset, stop), y=(y, y), **line_kwargs)
+        mid = int(pixel_width / 2 + x_offset)
+        if text_kwargs is None:
+            self.add_text_annotation(axis=axis, x=mid, y=y - text_offset, text=um_width + 'um', ha='center',
+                                     fontsize=14, color='white')
+        else:
+            check_dict(text_kwargs, name='text_kwargs')
+            self.add_text_annotation(axis=axis, x=mid, y=y - text_offset, text=um_width + 'um', **text_kwargs)
 
     def get_ylim(self, ylim_type, ylim_value, data):
         """
@@ -290,6 +343,14 @@ class Movie:
          :param bottom_left_ticks: if True will only show the bottom left ticks of the axis
         :return:
         """
+        check_text(x_label, 'x_label')
+        check_text(y_label, 'y_label')
+        check_dict(running_line, 'running_line')
+        check_bool(bottom_left_ticks, 'bottom_left_ticks')
+        check_text(ylim_type, 'ylim_type')
+        check_bool(tight_x, 'tight_x')
+        check_dict(label_kwargs, 'label_kwargs')
+        check_dict(legend_kwargs, 'legend_kwargs')
         local_vars = locals()
         del local_vars['self']
         self.axes.append(local_vars)
