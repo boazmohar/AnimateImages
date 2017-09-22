@@ -3,6 +3,8 @@
 Animate Images
 ==============
 
+|Build Status| |PyPI version| |Updates| |Python3| |Cover|
+
 Helper functions to make animations of images with corresponding traces and labels using matplotlib
 
 ------------
@@ -42,3 +44,14 @@ Deploying
     bumpversion patch
     python setup.py sdist
     twine upload \dist\...
+
+.. |Updates| image:: https://pyup.io/repos/github/boazmohar/AnimateImages/shield.svg
+   :target: https://pyup.io/repos/github/boazmohar/AnimateImages/
+.. |Python3| image:: https://pyup.io/repos/github/boazmohar/AnimateImages/python-3-shield.svg
+   :target: https://pyup.io/repos/github/boazmohar/AnimateImages/
+.. |Build Status| image:: https://travis-ci.org/boazmohar/AnimateImages.svg?branch=master
+   :target: https://travis-ci.org/boazmohar/AnimateImages
+.. |PyPI version| image:: https://badge.fury.io/py/animateimages.svg
+   :target: https://badge.fury.io/py/animateimages
+.. |Cover| image:: https://coveralls.io/repos/github/boazmohar/AnimateImages/badge.svg?branch=master
+   :target: https://coveralls.io/github/boazmohar/AnimateImages?branch=master
