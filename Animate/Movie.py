@@ -116,9 +116,6 @@ class Movie:
                 values = np.arange(self.images[0]['data'].shape[0]) * self.dt
         self.add_label(x, y, values, axis, s_format, size, **kwargs)
 
-    def add_behavior_label(self, x=0.9, y=0.08, values=None, axis=0, s_format='%s', size=14, **kwargs):
-        self.add_label(x=x, y=y, values=values, axis=axis, s_format=s_format, size=size, kwargs=kwargs)
-
     def add_annotation(self, axis, xy, xy_text, text, axis_type='image', **kwargs):
         """ add annotation using axis.annotate
 
