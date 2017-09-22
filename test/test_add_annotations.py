@@ -31,7 +31,7 @@ def test_fail_positions():
     assert 'xy_text should be an iterable' in str(ex.value)
     with pytest.raises(ValueError) as ex:
         m = Movie()
-        m.add_annotation(axis=0, xy=(0, 1), xy_text='12', text='')
+        m.add_annotation(axis=0, xy=(0, 1), xy_text='123', text='')
     assert 'xy_text should be an iterable' in str(ex.value)
 
 
