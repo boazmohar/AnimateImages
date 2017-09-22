@@ -13,7 +13,6 @@ addons:
       - libav-tools
       - mencoder
       - dvipng
-      - ffmpeg
 
 cache: pip
 
