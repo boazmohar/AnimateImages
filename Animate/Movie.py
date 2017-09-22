@@ -251,20 +251,19 @@ class Movie:
             raise ValueError('Expected 3d numpy array when animation type is movie got: %s', data.shape)
         if len(data.shape) != 2 and animation_type == 'window' and not is_rgb:
             raise ValueError('Expected 2d numpy array when animation type is window got: %s', data.shape)
-        if len(data.shape) != 3 and animation_type == 'window' and is_rgb and data.shape[2] == 3:
-            raise ValueError('Expected 3d numpy array when animation type is window  and is_rgb is True got: %s',
-                             data.shape)
+        if animation_type == 'window' and is_rgb:
+            if len(data.shape) != 3 or (len(data.shape) == 3 and data.shape[2] != 3):
+                raise ValueError('Expected 3d numpy array when animation type is window and is_rgb is True got: %s',
+                                 data.shape)
 
         img = dict()
-        img['data'] = data
-        img['style'] = style
-        img['c_title'] = c_title
-        img['c_style'] = c_style
-        img['animation_type'] = animation_type
-        img['window_size'] = window_size
-        img['window_step'] = window_step
-        img['is_rgb'] = is_rgb
         img['ymin'], img['ymax'] = self.get_ylim(ylim_type, ylim_value, data)
+        local_vars = locals()
+        del local_vars['self']
+        del local_vars['img']
+        del local_vars['ylim_type']
+        del local_vars['ylim_value']
+        img.update(local_vars)
         self.images.append(img)
 
     def add_trace(self, data, axis=0, **kwargs):
