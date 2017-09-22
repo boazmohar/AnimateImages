@@ -9,4 +9,4 @@ def test_save(tmpdir):
     img = np.arange(100).reshape(4, 5, 5)
     m.add_image(img, style='dark_img')
     m.save(path)
-    assert os.path.isfile(path + '.mp4')
+    assert os.path.isfile(path + '.mp4') or os.path.isfile(path + '.gif')
