@@ -28,6 +28,6 @@ def test_save_fail(tmpdir):
     
 
 def test_ffmpeg():
-    path = subprocess.check_output("locate ffmpeg", shell=True)
+    path = subprocess.check_output("find / | grep ffmpeg", shell=True)
     print(path)
     assert path == ''
