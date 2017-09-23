@@ -364,7 +364,7 @@ class Movie:
         :param codec: codec to use (h264 was tested to be good for power point on mac and windows)
         :return:
         """
-        animation = Animation(self)
+        animation = Animation(self, fps=fps)
         if writer_name in writers.avail:
             if 'ffmpeg' in writer_name:
                 path += '.mp4'

@@ -14,7 +14,7 @@ class Animation(TimedAnimation):
 
     """
 
-    def __init__(self, movie):
+    def __init__(self, movie, fps=1):
         """
 
         :param movie:
@@ -33,7 +33,7 @@ class Animation(TimedAnimation):
             self.fig = plt.figure()
         rect = self.fig.patch
         rect.set_facecolor(self.movie.fig_color)
-        TimedAnimation.__init__(self, self.fig, interval=70, blit=True)
+        TimedAnimation.__init__(self, self.fig, interval=1.0 / fps * 1000, blit=True)
 
     def _init_labels(self):
         for label in self.movie.labels:
