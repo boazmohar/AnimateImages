@@ -5,6 +5,7 @@ import numpy as np
 from Animate.Movie import Movie
 from matplotlib.animation import writers
 import matplotlib.pyplot as plt
+plt.rcParams['animation.ffmpeg_path'] = u'/opt/ffmpeg/bin/ffmpeg'
 
 
 @pytest.mark.skipif(len(writers.avail) == 0, reason='No writers to save with')
@@ -30,8 +31,8 @@ def test_save_fail(tmpdir):
     assert 'Could not find "ffmpeg" and "imagemagick"' in str(ex.value)
 
 
+@pytest.mark.skipif('ffmpeg' not in writers.avail, reason='No ffmpeg to save with')
 def test_ffmpeg(tmpdir):
-    plt.rcParams['animation.ffmpeg_path'] = u'/opt/ffmpeg/bin/ffmpeg'
     path = tmpdir.join('test2').relto('')
     m = Movie(dt=1.0/14, height_ratio=2)
     img = np.arange(100).reshape(4, 5, 5)
