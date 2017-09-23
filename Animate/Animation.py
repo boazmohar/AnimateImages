@@ -151,12 +151,26 @@ class Animation(TimedAnimation):
                         plt.colorbar(im, ax=ax, label=image['c_title'])
 
     def _make_x_data(self):
-        img = self.movie.images[0]['data']
-        if self.movie.images[0]['animation_type'] == 'movie':
+        # for now we assume that either all animation types are 'movie' or 'window'
+        movie = self.movie.images[0]
+        img = movie['data']
+
+        if movie['animation_type'] == 'movie':
+            for m in self.movie.images:
+                if m['animation_type'] != 'movie':
+                    raise NotImplementedError('All animation types should be the same as the first -- "movie"')
             length = img.shape[0]
             self.x_data = np.arange(length) * self.movie.dt
-        elif self.movie.images[0]['animation_type'] == 'window':
-            print('X_data not implemented yet - will fail if there are traces')
+        elif movie['animation_type'] == 'window':
+            for m in self.movie.images:
+                if m['animation_type'] != 'window':
+                    raise NotImplementedError('All animation types should be the same as the first -- "movie"')
+            length = img.shape[1]
+            window_length = movie['window_size']
+            self.x_data = (np.arange(length) - window_length // 2) * self.movie.dt
+            print(length)
+            print(window_length // 2)
+            print(self.x_data)
 
     def _draw_frame(self, frame):
         print(frame, end=', ')
@@ -181,7 +195,11 @@ class Animation(TimedAnimation):
         if self.n_axes > 0:
             for line in self.running_lines:
                 y_limits = line.axes.get_ylim()
-                line.set_data([self.x_data[frame], self.x_data[frame]], [y_limits[0], y_limits[1]])
+                if self.movie.images[0]['animation_type'] == 'movie':
+                    line.set_data([self.x_data[frame], self.x_data[frame]], [y_limits[0], y_limits[1]])
+                else:
+                    x_loc = self.x_data[frame] + self.movie.images[0]['window_size'] // 2
+                    line.set_data([x_loc, x_loc], [y_limits[0], y_limits[1]])
                 drawn_artist.append(line)
         self._drawn_artists = drawn_artist
 

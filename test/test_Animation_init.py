@@ -157,6 +157,24 @@ def test_x_data():
     a = Animation(m)
     assert np.allclose(a.x_data, np.arange(40) * 0.5)
 
+    m = Movie(dt=1)
+    img = np.arange(100).reshape(5, 20)
+    m.add_image(img, animation_type='window', window_size=5)
+    m.add_axis('x', 'y')
+    m.add_trace(np.arange(20))
+    a = Animation(m)
+    assert np.allclose(a.x_data, np.arange(20) - 5 // 2)
+
+    m = Movie(dt=1)
+    img = np.arange(100).reshape(5, 20)
+    m.add_image(img, animation_type='window', window_size=7, window_step=2)
+    m.add_axis('x', 'y')
+    m.add_trace(np.arange(20))
+    a = Animation(m)
+    print(a.x_data)
+    print(np.arange(20) - 7 // 2)
+    assert np.allclose(a.x_data, np.arange(20) - 7 // 2)
+
 
 def test_style():
     _ = Movie(style='default')
