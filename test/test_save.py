@@ -13,8 +13,8 @@ def test_imagemagick(tmpdir):
     m = Movie(dt=1.0/14, height_ratio=2)
     img = np.arange(100).reshape(4, 5, 5)
     m.add_image(img, style='dark_img')
-    if 'imagemagick' in writers.avail:
-        writers.avail.remove('imagemagick')
+    if 'ffmpeg' in writers.avail:
+        del writers.avail['ffmpeg']
     m.save(path)
     assert os.path.isfile(path + '.gif')
 
@@ -31,7 +31,7 @@ def test_save_fail(tmpdir):
     
 
 def test_ffmpeg():
-    plt.rcParams['animation.ffmpeg_path'] = '/opt/ffmpeg/bin/ffmpeg'
+    plt.rcParams['animation.ffmpeg_path'] = u'/opt/ffmpeg/bin/ffmpeg'
     path = tmpdir.join('test2').relto('')
     m = Movie(dt=1.0/14, height_ratio=2)
     img = np.arange(100).reshape(4, 5, 5)
