@@ -19,8 +19,7 @@ cache: pip
 before_script:
   - "sudo add-apt-repository ppa:mc3man/trusty-media -y"
   - "sudo apt-get update"
-  - "sudo apt-get dist-upgrade"
-  - "sudo aptitude -y -q install ffmpeg libvpx-dev libvpx0 x264 libx264-85 libx264-dev"
+  - "sudo apt-get -y install ffmpeg libvpx-dev libvpx0 x264 libx264-85 libx264-dev"
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
   - sleep 3 # give xvfb some time to start
