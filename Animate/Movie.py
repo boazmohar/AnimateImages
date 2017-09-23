@@ -355,21 +355,24 @@ class Movie:
         del local_vars['self']
         self.axes.append(local_vars)
 
-    def save(self, path, fps=14, codec='h264'):
+    def save(self, path, writer_name='ffmpeg', fps=14, codec='h264'):
         """
 
         :param path: full path to save animation (path and filename without extension)
+        :param writer_name: could be 'ffmpeg' or 'imagemagick' for now
         :param fps: frames oer second to save movie
         :param codec: codec to use (h264 was tested to be good for power point on mac and windows)
         :return:
         """
         animation = Animation(self)
-        if 'ffmpeg' in writers.avail:
-            writer = writers['ffmpeg'](fps=fps, codec=codec)
-            animation.save(path + '.mp4', writer=writer, savefig_kwargs={'facecolor': self.fig_color})
-
-        elif 'imagemagick' in writers.avail:
-            writer = writers['imagemagick'](fps=fps, codec=codec)
-            animation.save(path + '.gif', writer=writer, savefig_kwargs={'facecolor': self.fig_color})
+        if writer_name in writers.avail:
+            if 'ffmpeg' in writer_name:
+                path += '.mp4'
+            elif 'imagemagick' in writer_name:
+                path += '.gif'
+            else:
+                raise ValueError('writer_name not "ffmpeg" or "imagemagick" got: %s' % writer_name)
+            writer = writers[writer_name](fps=fps, codec=codec)
+            animation.save(path, writer=writer, savefig_kwargs={'facecolor': self.fig_color})
         else:
-            raise ValueError('Could not find "ffmpeg" and "imagemagick", writers: %s' % writers.avail)
+            raise ValueError('Could not find %s in writers: %s' % (writer_name, writers.avail))

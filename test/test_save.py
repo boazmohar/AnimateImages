@@ -1,22 +1,25 @@
 import pytest
-import subprocess
-import os.path
+import os
 import numpy as np
 from Animate.Movie import Movie
 from matplotlib.animation import writers
 import matplotlib.pyplot as plt
-plt.rcParams['animation.ffmpeg_path'] = u'/opt/ffmpeg/bin/ffmpeg'
 
 
-@pytest.mark.skipif(len(writers.avail) == 0, reason='No writers to save with')
+@pytest.yield_fixture(autouse=True, scope='module')
+def set_ffmpeg_path_travis():
+    print(plt.rcParams['animation.ffmpeg_path'])
+    if os.environ.get('TRAVIS_PYTHON_VERSION') is not None:
+        plt.rcParams['animation.ffmpeg_path'] = u'/opt/ffmpeg/bin/ffmpeg'
+
+
+@pytest.mark.skipif('imagemagick' not in writers.avail, reason='No imagemagick to save with')
 def test_imagemagick(tmpdir):
     path = tmpdir.join('test').relto('')
     m = Movie(dt=1.0/14, height_ratio=2)
     img = np.arange(100).reshape(4, 5, 5)
     m.add_image(img, style='dark_img')
-    if 'ffmpeg' in writers.avail:
-        del writers.avail['ffmpeg']
-    m.save(path)
+    m.save(path, writer_name='imagemagick')
     assert os.path.isfile(path + '.gif')
 
 
@@ -26,7 +29,7 @@ def test_ffmpeg(tmpdir):
     m = Movie(dt=1.0/14, height_ratio=2)
     img = np.arange(100).reshape(4, 5, 5)
     m.add_image(img, style='dark_img')
-    m.save(path)
+    m.save(path, writer_name=)
     assert os.path.isfile(path + '.mp4')
 
 
