@@ -30,7 +30,7 @@ def test_save_fail(tmpdir):
     assert 'Could not find "ffmpeg" and "imagemagick"' in str(ex.value)
     
 
-def test_ffmpeg():
+def test_ffmpeg(tempdir):
     plt.rcParams['animation.ffmpeg_path'] = u'/opt/ffmpeg/bin/ffmpeg'
     path = tmpdir.join('test2').relto('')
     m = Movie(dt=1.0/14, height_ratio=2)
