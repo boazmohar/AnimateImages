@@ -24,3 +24,9 @@ def test_save_fail(tmpdir):
     with pytest.raises(ValueError) as ex:
         m.save(path)
     assert 'Could not find "ffmpeg" and "imagemagick"' in str(ex.value)
+    
+
+def test_ffmpeg():
+    path = subprocess.check_output("locate ffmpeg", shell=True)
+    print(path)
+    assert path == ''
