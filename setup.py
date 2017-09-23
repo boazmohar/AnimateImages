@@ -10,7 +10,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 with open(path.join(here, 'requirements.txt'), encoding='utf-8') as f:
     requires = f.read().splitlines()
-    
+
 with open(path.join(here, 'requirements-dev.txt'), encoding='utf-8') as f:
     requires_dev = f.read().splitlines()
 
