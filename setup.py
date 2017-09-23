@@ -11,6 +11,10 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 with open(path.join(here, 'requirements.txt'), encoding='utf-8') as f:
     requires = f.read().splitlines()
 
+with open(path.join(here, 'requirements-dev.txt'), encoding='utf-8') as f:
+    requires_dev = f.read().splitlines()
+
+
 setup(
     name='animateimages',
     packages=find_packages(exclude=['dist', 'docs', 'test']),
@@ -29,6 +33,10 @@ setup(
                  'Programming Language :: Python :: 2.7',
                  'Programming Language :: Python :: 3',
                  'Programming Language :: Python :: 3.5',
+                 'Programming Language :: Python :: 3.6',
                  ],
     install_requires=requires,
+    extras_require={
+        'dev': requires_dev,
+    },
 )
