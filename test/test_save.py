@@ -20,6 +20,16 @@ def test_imagemagick(tmpdir):
     assert os.path.isfile(path + '.gif')
 
 
+@pytest.mark.skipif('ffmpeg' not in writers.avail, reason='No ffmpeg to save with')
+def test_ffmpeg(tmpdir):
+    path = tmpdir.join('test2').relto('')
+    m = Movie(dt=1.0/14, height_ratio=2)
+    img = np.arange(100).reshape(4, 5, 5)
+    m.add_image(img, style='dark_img')
+    m.save(path)
+    assert os.path.isfile(path + '.mp4')
+
+
 def test_save_fail(tmpdir):
     path = tmpdir.join('test').relto('')
     writers.avail = []
@@ -29,13 +39,3 @@ def test_save_fail(tmpdir):
     with pytest.raises(ValueError) as ex:
         m.save(path)
     assert 'Could not find "ffmpeg" and "imagemagick"' in str(ex.value)
-
-
-@pytest.mark.skipif('ffmpeg' not in writers.avail, reason='No ffmpeg to save with')
-def test_ffmpeg(tmpdir):
-    path = tmpdir.join('test2').relto('')
-    m = Movie(dt=1.0/14, height_ratio=2)
-    img = np.arange(100).reshape(4, 5, 5)
-    m.add_image(img, style='dark_img')
-    m.save(path)
-    assert os.path.isfile(path + '.mp4')
