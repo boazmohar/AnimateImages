@@ -1,4 +1,5 @@
 import pytest
+import subprocess
 import os.path
 import numpy as np
 from Animate.Movie import Movie
