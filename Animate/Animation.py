@@ -88,11 +88,6 @@ class Animation(TimedAnimation):
                 if axis['bottom_left_ticks']:
                     ax.yaxis.set_ticks_position('left')
                     ax.xaxis.set_ticks_position('bottom')
-                # running line
-                if axis['running_line'] is not None:
-                    run_line = Line2D([], [], **axis['running_line'])
-                    ax.add_line(run_line)
-                    self.running_lines.append(run_line)
 
                 # find the traces that belong to this axis
                 trace_index = np.where(trace_axis == i)[0]
@@ -128,6 +123,19 @@ class Animation(TimedAnimation):
                     ax.set_xlim([min(self.x_data), max(self.x_data)])
                 if len(axis['legend_handles']) > 0:
                     ax.legend(handles=axis['legend_handles'], **axis['legend_kwargs'])
+                # running line
+                if axis['running_line'] is not None:
+                    movie = self.movie.images[0]
+                    if movie['animation_type'] == 'movie':
+                        run_line = Line2D([], [], **axis['running_line'])
+                        ax.add_line(run_line)
+                        self.running_lines.append(run_line)
+                    else:
+                        patch_x = (movie['window_size'] // 2 * -1 - 1) * self.movie.dt
+                        r = patches.Rectangle(xy=(patch_x, y_min), width=movie['window_size'] * self.movie.dt,
+                                              height=y_max - y_min, angle=0, **axis['running_line'])
+                        ax.add_patch(r)
+                        self.running_lines.append(r)
 
     def _init_images(self):
         for i, image in enumerate(self.movie.images):
@@ -195,8 +203,11 @@ class Animation(TimedAnimation):
                 if self.movie.images[0]['animation_type'] == 'movie':
                     line.set_data([self.x_data[frame], self.x_data[frame]], [y_limits[0], y_limits[1]])
                 else:
-                    x_loc = self.x_data[frame] + self.movie.images[0]['window_size'] // 2
-                    line.set_data([x_loc, x_loc], [y_limits[0], y_limits[1]])
+                    x, y = line.xy
+                    x += self.movie.images[0]['window_step'] * self.movie.dt
+                    line.xy = (x, y)
+                    # x_loc = self.x_data[frame] + self.movie.images[0]['window_size'] // 2
+                    # line.set_data([x_loc, x_loc], [y_limits[0], y_limits[1]])
                 drawn_artist.append(line)
         self._drawn_artists = drawn_artist
 
