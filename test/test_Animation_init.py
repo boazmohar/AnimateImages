@@ -171,8 +171,6 @@ def test_x_data():
     m.add_axis('x', 'y')
     m.add_trace(np.arange(20))
     a = Animation(m)
-    print(a.x_data)
-    print(np.arange(20) - 7 // 2)
     assert np.allclose(a.x_data, np.arange(20) - 7 // 2)
 
 

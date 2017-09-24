@@ -168,9 +168,6 @@ class Animation(TimedAnimation):
             length = img.shape[1]
             window_length = movie['window_size']
             self.x_data = (np.arange(length) - window_length // 2) * self.movie.dt
-            print(length)
-            print(window_length // 2)
-            print(self.x_data)
 
     def _draw_frame(self, frame):
         print(frame, end=', ')
@@ -209,7 +206,6 @@ class Animation(TimedAnimation):
         elif self.movie.images[0]['animation_type'] == 'window':
             img = self.movie.images[0]
             length = img['data'].shape[1] - img['window_size']
-            print(range(0, length, img['window_step']))
             return iter(range(0, length, img['window_step']))
 
     def _init_draw(self):
