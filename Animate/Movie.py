@@ -278,7 +278,7 @@ class Movie:
             raise RuntimeError("Expected 'p_top', 'p_bottom', 'p_both', 'set' or 'same' got: %s" % ylim_type)
 
     def add_image(self, data, animation_type='movie', style='dark_img', c_title=None, c_style='dark_background',
-                  ylim_type='p_top', ylim_value=0.1, window_size=59, window_step=3, is_rgb=False):
+                  ylim_type='p_top', ylim_value=0.1, window_size=29, window_step=1, is_rgb=False):
         """
 
         :param data: 3d array (n, x, y) if type is movie or (x, y) if type is window

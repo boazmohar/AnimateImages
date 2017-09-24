@@ -47,6 +47,6 @@ def test_default_values():
     assert m_img['c_style'] == 'dark_background'
     assert np.isclose(m_img['ymin'], 0)
     assert np.isclose(m_img['ymax'], 98.901)
-    assert m_img['window_size'] == 60
-    assert m_img['window_step'] == 3
+    assert m_img['window_size'] == 29
+    assert m_img['window_step'] == 1
     assert m_img['is_rgb'] is False
