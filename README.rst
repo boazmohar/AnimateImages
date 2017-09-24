@@ -7,9 +7,11 @@ Animate Images
 
 Helper functions to make animations of images with corresponding traces and labels using matplotlib
 
-------------
-Example use:
-------------
+-------------
+Example uses:
+-------------
+
+If you have a 3d movie (time, x, y):
 
 .. code-block:: python
 
@@ -25,6 +27,34 @@ Example use:
 
 .. image:: resources/example.gif
 
+
+If you have a 2d movie (x, y) where you want to have a sliding window movie:
+
+.. code-block:: python
+
+    import numpy as np
+    from Animate.Movie import Movie
+
+    # prepare data
+    x_len = 300
+    x_res = 20.0
+    y_amplitude = 20
+    noise_amplitude = 5
+    x = np.arange(x_len) / x_res
+    y = np.sin(x) * y_amplitude
+    pix_number = 10
+    img = np.random.randint(0, noise_amplitude, size=pix_number*x_len).reshape(pix_number, x_len) + y
+
+    # make a movie
+    rate = 5.0
+    m = Movie(dt=1.0/rate)
+    m.add_image(img, animation_type='window', window_size=19, window_step=5)
+    m.add_axis('Time (s)', 'Mean value')
+    m.add_trace(img.mean(axis=0))
+    m.save('testing', fps=rate)
+
+
+.. image:: resources/window.gif
 
 -------
 Testing
