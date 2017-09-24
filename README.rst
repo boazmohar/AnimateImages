@@ -83,5 +83,5 @@ Deploying
    :target: https://travis-ci.org/boazmohar/AnimateImages
 .. |PyPI version| image:: https://badge.fury.io/py/animateimages.svg
    :target: https://badge.fury.io/py/animateimages
-.. |Cover| image:: https://coveralls.io/repos/github/boazmohar/AnimateImages/badge.svg?branch=master
+.. |Cover| image:: https://coveralls.io/repos/github/boazmohar/AnimateImages/badge.svg?branch=master?ts=1
    :target: https://coveralls.io/github/boazmohar/AnimateImages?branch=master
