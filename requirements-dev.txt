@@ -1,6 +1,6 @@
 numpy==1.13.3
 matplotlib==2.1.0
-pytest==3.2.3
+pytest==3.2.5
 pytest-pep8==1.0.6
 pytest-cov==2.5.1
 coveralls==1.2.0
