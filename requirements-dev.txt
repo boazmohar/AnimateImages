@@ -1,5 +1,5 @@
 numpy==1.14.0
-matplotlib==2.1.1
+matplotlib==2.1.2
 pytest==3.3.2
 pytest-pep8==1.0.6
 pytest-cov==2.5.1
