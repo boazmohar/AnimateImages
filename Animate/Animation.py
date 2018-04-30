@@ -62,6 +62,10 @@ class Animation(TimedAnimation):
             elif annotation['type'] == 'annotation':
                 ax.annotate(annotation['text'], xy=annotation['xy'], xytext=annotation['xy_text'],
                             **annotation['kwargs'])
+            elif annotation['type'] == 'var_annotation':
+                an = ax.annotate(annotation['text_array'][0], xy=annotation['xy_array'][0],
+                                 xytext=annotation['xy_text_array'][0], **annotation['kwargs'])
+                self.var_annotations.append((an, annotation))
             elif annotation['type'] == 'rectangle':
                 r = patches.Rectangle(xy=annotation['xy'], width=annotation['width'], height=annotation['height'],
                                       angle=annotation['angle'], **annotation['kwargs'])
@@ -196,6 +200,13 @@ class Animation(TimedAnimation):
         for label, data in zip(self.labels, self.movie.labels):
             label.set_text(data['s_format'] % data['values'][frame])
             drawn_artist.append(label)
+        # var_annotations
+        for annotation_handle, annotation_data in self.var_annotations:
+            annotation_handle.set_position(annotation_data['xy_text_array'][frame])
+            annotation_handle.xy = annotation_data['xy_array'][frame]
+            annotation_handle.set_text(annotation_data['text_array'][frame])
+            drawn_artist.append(annotation_handle)
+
         # running lines
         if self.n_axes > 0:
             for line in self.running_lines:
@@ -236,6 +247,7 @@ class Animation(TimedAnimation):
             self.running_lines = []
             self._init_traces()
         # annotations
+        self.var_annotations = []
         self._init_annotations()
         # labels
         self.labels = []
