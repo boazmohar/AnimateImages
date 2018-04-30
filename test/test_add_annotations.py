@@ -204,7 +204,7 @@ def test_var_annotation():
     assert an['axis'] == 0
     assert np.allclose(an['xy_array'], array)
     assert np.allclose(an['xy_text_array'], array2)
-    assert np.allclose(an['text_array'], np.array(('', '', '', '')))
+    assert np.allclose(np.array(an['text_array']), np.array(('', '', '', '')))
     assert an['axis_type'] == 'image'
     an_kwargs = an['kwargs']
     assert an_kwargs['arrow_props'] == arrow_props
