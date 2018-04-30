@@ -135,6 +135,34 @@ class Movie:
         self.annotations.append({'type': 'annotation', 'axis': axis, 'text': text, 'xy': xy, 'xy_text': xy_text,
                                  'axis_type': axis_type, 'kwargs': kwargs})
 
+    def add_variable_annotation(self, axis, xy_array, xy_text_array, text_array, axis_type='image', **kwargs):
+        """ add annotation using axis.annotate
+
+        :param axis: axis number starting at 0
+        :param xy_array: position of the arrow (array length of data)
+        :param xy_text_array: position of the text box (array length of data)
+        :param text_array: string to write (array length of data)
+        :param axis_type: 'image' for images, 'trace' for traces
+        :param kwargs: will be forwarded to annotate
+        :return:
+        """
+        check_axis(axis)
+        check_location(xy_array[0], name='xy')
+        check_location(xy_text_array[0], name='xy_text')
+        check_axis_type(axis_type)
+        if len(self.images) == 0:
+            if len(self.traces) == 0:
+                raise RuntimeError('Can not add time labels when no values are given and no data was added')
+            else:
+                length = self.traces[0]['data'].shape[0]
+        else:
+            length = self.images[0]['data'].shape[0]
+        check_length(xy_array, length, 'xy_array')
+        check_length(xy_text_array, length, 'xy_text_array')
+        check_length(text_array, length, 'text_array')
+        self.annotations.append({'type': 'var_annotation', 'axis': axis, 'text_array': text_array, 'xy_array': xy_array,
+                                 'xy_text_array': xy_text_array, 'axis_type': axis_type, 'kwargs': kwargs})
+
     def add_rectangle_annotation(self, axis, xy, width, height, angle, axis_type='image', **kwargs):
         """ add annotation using patches.Rectangle. Draw a rectangle with lower left at xy = (x, y)
         with specified width, height and rotation angle.

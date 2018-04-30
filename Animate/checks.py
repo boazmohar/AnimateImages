@@ -48,3 +48,8 @@ def check_dict(d, name):
 def check_bool(b, name):
     if not isinstance(b, bool):
         raise ValueError('%s should be a boolean: %s' % (name, type(b)))
+
+
+def check_length(a, length, name):
+    if len(a) != length:
+        raise ValueError('%s should be length: %d got %d' % (name, length, len(a)))

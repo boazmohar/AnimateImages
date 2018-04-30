@@ -189,3 +189,22 @@ def test_scale_bar_kwargs():
     assert text['text'] == '20um'
     text_kwargs = text['kwargs']
     assert text_kwargs['color'] == 'blue'
+
+
+def test_var_annotation():
+    m = Movie()
+    img = np.arange(100).reshape(4, 5, 5)
+    m.add_image(img)
+    array = [[0, 0], [1, 1], [2, 2], [3, 3]]
+    array2 = [[3, 3], [2, 2], [1, 1], [0, 0]]
+    arrow_props = dict(arrowstyle="->", color='r', connectionstyle="arc3", lw=3)
+    m.add_variable_annotation(axis=0, xy_array=array, xy_text_array=array2, text_array=('', '', '', ''),
+                              axis_type='image', arrowprops=arrow_props)
+    an = m.annotations[0]
+    assert an['axis'] == 0
+    assert np.allclose(an['xy_array'], array)
+    assert np.allclose(an['xy_text_array'], array2)
+    assert np.allclose(an['text_array'], np.array(('', '', '', '')))
+    assert an['axis_type'] == 'image'
+    an_kwargs = an['kwargs']
+    assert an_kwargs['arrow_props'] == arrow_props
